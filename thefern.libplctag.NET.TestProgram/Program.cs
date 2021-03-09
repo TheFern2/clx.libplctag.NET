@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using libplctag;
 using libplctag.DataTypes;
+using libplctag.NativeImport;
 
 namespace thefern.libplctag.NET.TestProgram
 {
@@ -61,9 +62,19 @@ namespace thefern.libplctag.NET.TestProgram
             await tag2.ReadAsync();
             Console.WriteLine("tag2: " + tag2.Value);*/
 
-            var writeResults = await myPLC.Write("BaseBOOL", TagType.Bool, true);
+            //var writeResults = await myPLC.Write("BaseBOOL", TagType.Bool, true);
             //var writeResults = await myPLC.WriteDintTag("BaseDINT", -545437486);
-            Console.WriteLine(writeResults);
+            //Console.WriteLine(writeResults);
+
+            var tagHandle = plctag.plc_tag_create("protocol=ab_eip&gateway=192.168.1.196&path=1,2&plc=LGX&elem_size=1&elem_count=1&debug=1&name=BaseBOOL", 1000);
+            plctag.plc_tag_read(tagHandle, 1000);
+
+            var value = plctag.plc_tag_get_uint8(tagHandle, 0);
+            Console.WriteLine(value);            
+            plctag.plc_tag_set_uint8(tagHandle, 0, 255);
+            plctag.plc_tag_write(tagHandle, 1000);
+            var value2 = plctag.plc_tag_get_uint8(tagHandle, 0);
+            Console.WriteLine(value2);
         }
     }
 }
