@@ -8,7 +8,6 @@ namespace thefern.libplctag.NET
     {
         public string TagName { get; }
         public T Value { get; }
-        public string[] ArrValue { get; }
         public string Status { get; }
 
         public Response(string tagName, T value, string status)

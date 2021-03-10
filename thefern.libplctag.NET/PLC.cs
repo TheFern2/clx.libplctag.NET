@@ -1,5 +1,6 @@
 ﻿using libplctag;
 using libplctag.DataTypes;
+using libplctag.NativeImport;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -255,34 +256,34 @@ namespace thefern.libplctag.NET
             }
         }
 
-        // public async Task<Response<string>> Write(string tagName, TagType tagType, object value, int arrayLength)
-        // {
-        //     switch (tagType)
-        //     {
-        //         case TagType.Bool:
-        //             return await WriteBoolTag(tagName, value as bool?);
-        //         case TagType.Bit:
-        //             return await WriteBoolTag(tagName, value as bool?);
-        //         case TagType.Dint:
-        //             return await WriteDintTag(tagName, value as int?);
-        //         case TagType.Int:
-        //             return await WriteIntTag(tagName, value as int?);
-        //         case TagType.Sint:
-        //             if (arrayLength > 0) return await ReadSintArray(tagName, arrayLength);
-        //             return await ReadSintTag(tagName);
-        //         case TagType.Lint:
-        //             if (arrayLength > 0) return await ReadLintArray(tagName, arrayLength);
-        //             return await ReadLintTag(tagName);
-        //         case TagType.Real:
-        //             if (arrayLength > 0) return await ReadRealArray(tagName, arrayLength);
-        //             return await ReadRealTag(tagName);
-        //         case TagType.String:
-        //             if (arrayLength > 0) return await ReadStringArray(tagName, arrayLength);
-        //             return await ReadStringTag(tagName);
-        //         default:
-        //             return "Unknown type";
-        //     }
-        // }
+        public async Task<Response<string>> Write(string tagName, TagType tagType, object value, int arrayLength)
+        {
+            switch (tagType)
+            {
+                case TagType.Bool:
+                    return await WriteBoolTag(tagName, value as bool?);
+                /*case TagType.Bit:
+                    return await WriteBoolTag(tagName, value as bool?);
+                case TagType.Dint:
+                    return await WriteDintTag(tagName, value as int?);
+                case TagType.Int:
+                    return await WriteIntTag(tagName, value as int?);
+                case TagType.Sint:
+                    if (arrayLength > 0) return await ReadSintArray(tagName, arrayLength);
+                    return await ReadSintTag(tagName);
+                case TagType.Lint:
+                    if (arrayLength > 0) return await ReadLintArray(tagName, arrayLength);
+                    return await ReadLintTag(tagName);
+                case TagType.Real:
+                    if (arrayLength > 0) return await ReadRealArray(tagName, arrayLength);
+                    return await ReadRealTag(tagName);
+                case TagType.String:
+                    if (arrayLength > 0) return await ReadStringArray(tagName, arrayLength);
+                    return await ReadStringTag(tagName);*/
+                default:
+                    return new Response<string>(tagName, "None", "Wrong Type");
+            }
+        }
 
 
         public async Task<Response<int>> ReadDintTag(string tagName)
@@ -301,7 +302,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<int>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<int>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -327,7 +330,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (int)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -335,7 +340,7 @@ namespace thefern.libplctag.NET
             }
         }
 
-        public async Task<Response<int[]>> ReadDintArray(string tagName, int arrayLength)
+        public async Task<Response<int[]>> ReadDintArray(string tagName, int arrayLength, int startIndex=0, int count=0)
         {
             var tag = new Tag<DintPlcMapper, int[]>()
             {
@@ -351,13 +356,87 @@ namespace thefern.libplctag.NET
             try
             {
                 await tag.InitializeAsync();
-                await tag.ReadAsync();                
-                return new Response<int[]>(tagName, tag.Value, "Success");
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+
+                // Sanity check to make sure we don't try to access items indices bigger than array
+                if (startIndex + count > arrayLength)
+                {
+                    int[] emptyArr = { };
+                    return new Response<int[]>(tagName, emptyArr, "Start index + count is greater than array length, out of bounds.");
+                }
+
+                if (count > 0)
+                {
+                    List<int> tagValueList = new List<int>(tagValue);
+                    return new Response<int[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                }
+
+                return new Response<int[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
                 int[] emptyArr = { };
                 return new Response<int[]>(tagName, emptyArr, "Failure");
+            }
+        }
+
+        public async Task<Response<int[]>> WriteDintArray(string tagName, int[] value, int arrayLength, int startIndex=0, int count=0)
+        {
+            var tag = new Tag<DintPlcMapper, int[]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { arrayLength }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                int[] tagValue = { };
+
+                // Sanity check to make sure we don't try to access items indices bigger than array
+                if (startIndex + count > arrayLength)
+                {
+                    int[] emptyArr = { };
+                    return new Response<int[]>(tagName, emptyArr, "Start index + count is greater than array length, out of bounds.");
+                }
+
+                if (count > 0)
+                {
+                    await tag.ReadAsync();
+                    List<int> tagValueList = new List<int>(tag.Value); // plc online value
+                    tagValueList.RemoveRange(startIndex, count);
+                    tagValueList.InsertRange(startIndex, value);
+                    tag.Value = tagValueList.ToArray();
+                    await tag.WriteAsync(); // write new range to plc
+                    await tag.ReadAsync();
+                    tagValue = tag.Value;
+                    tag.Dispose();
+                    List<int> updatedValueList = new List<int>(tagValue);
+                    var updatedValue = updatedValueList.GetRange(startIndex, count);
+                    return new Response<int[]>(tagName, updatedValue.ToArray(), "Success");
+                }
+                else
+                {               
+                    tag.Value = value;
+                    await tag.WriteAsync();
+                    await tag.ReadAsync();
+                    tagValue = tag.Value;
+                    tag.Dispose();
+                }
+
+                return new Response<int[]>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                int[] emptyArr = { };
+                return new Response<int[]>(tagName, emptyArr, "Write Failure");
             }
         }
 
@@ -377,7 +456,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<short>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<short>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -403,7 +484,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (short)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -428,7 +511,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<short[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<short[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -453,7 +538,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<sbyte>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<sbyte>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -479,7 +566,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (sbyte)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -504,7 +593,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<sbyte[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<sbyte[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -529,7 +620,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<long>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<long>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -555,7 +648,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (long)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -580,7 +675,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<long[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<long[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -605,12 +702,52 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<bool>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<bool>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
                 return new Response<bool>(tagName, false, "Failure");
             }
+        }
+
+        public async Task<Response<bool>> ReadBoolTagFAB(string tagName)
+        {
+            var tag = new Tag<BoolPlcMapper, bool>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout)
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<bool>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                return new Response<bool>(tagName, false, "Failure");
+            }
+        }
+
+        public int WriteBoolTagLL(string tagName, byte writeValue)
+        {
+            var tagHandle = plctag.plc_tag_create($"protocol=ab_eip&gateway={_ipAddress}&path={_path}&plc=LGX&elem_size=1&elem_count=1&debug=1&name={tagName}" , 1000);
+            plctag.plc_tag_read(tagHandle, 1000);
+            
+            //Console.WriteLine(value);            
+            plctag.plc_tag_set_uint8(tagHandle, 0, writeValue);
+            plctag.plc_tag_write(tagHandle, 1000);
+            var value = plctag.plc_tag_get_uint8(tagHandle, 0);
+            return value;
         }
 
         public async Task<Response<string>> WriteBoolTag(string tagName, bool? value)
@@ -631,7 +768,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (bool)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -639,7 +778,36 @@ namespace thefern.libplctag.NET
             }
         }
 
-        public async Task<Response<bool[]>> ReadBoolArray(string tagName, int arrayLength)
+        /*public async Task<Response<string>> WriteBoolArray(string tagName, bool[] value, int offset, int arrayLength)
+        {
+            var tag = new Tag<BoolPlcMapper, bool[]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { arrayLength }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                tag.Value = value;
+                await tag.WriteAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
+            }
+            catch (System.Exception)
+            {
+                return new Response<string>(tagName, "None", "Write Failure");
+            }
+        }*/
+
+        public async Task<Response<bool[]>> ReadBoolArray(string tagName, int arrayLength, int startIndex = 0, int count = 0)
         {
             var tag = new Tag<BoolPlcMapper, bool[]>()
             {
@@ -656,7 +824,23 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<bool[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+
+                // Sanity check to make sure we don't try to access items indices bigger than array
+                if(startIndex + count > arrayLength)
+                {
+                    bool[] emptyArr = { };
+                    return new Response<bool[]>(tagName, emptyArr, "Start index + count is greater than array length, out of bounds.");
+                }
+                
+                if(count > 0)
+                {
+                    List<bool> tagValueList = new List<bool>(tagValue);
+                    return new Response<bool[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                }
+
+                return new Response<bool[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -664,6 +848,61 @@ namespace thefern.libplctag.NET
                 return new Response<bool[]>(tagName, emptyArr, "Failure");
             }
         }
+
+        public async Task<Response<string>> WriteBoolArray(string tagName, bool[] value, int arrayLength, int startIndex = 0, int count = 0)
+        {
+            var tag = new Tag<BoolPlcMapper, bool[]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { arrayLength }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                bool[] tagValue = { };
+
+                // Sanity check to make sure we don't try to access items indices bigger than array
+                if (startIndex + count > arrayLength)
+                {
+                    //bool[] emptyArr = { };
+                    return new Response<string>(tagName, "None", "Start index + count is greater than array length, out of bounds.");
+                }
+
+                if (count > 0)
+                {
+                    await tag.ReadAsync();
+                    List<bool> tagValueList = new List<bool>(tag.Value); // plc online value
+                    tagValueList.RemoveRange(startIndex, count);
+                    tagValueList.InsertRange(startIndex, value);
+                    tag.Value = tagValueList.ToArray();
+                    await tag.WriteAsync(); // write new range to plc
+                    await tag.ReadAsync();
+                    tagValue = tag.Value;
+                    tag.Dispose();
+                    return new Response<string>(tagName, tagValue.ToString(), "Success");
+                }
+                else
+                {
+                    tag.Value = value;
+                    await tag.WriteAsync();
+                    await tag.ReadAsync();
+                    tagValue = tag.Value;
+                    tag.Dispose();
+                }
+
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
+            }
+            catch (System.Exception)
+            {
+                return new Response<string>(tagName, "None", "Write Failure");
+            }
+        }        
 
         public async Task<Response<float>> ReadRealTag(string tagName)
         {
@@ -681,7 +920,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<float>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<float>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -707,7 +948,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (float)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -732,7 +975,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<float[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<float[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
@@ -757,7 +1002,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -765,7 +1012,7 @@ namespace thefern.libplctag.NET
             }
         }
 
-        public async Task<Response<string>> WriteStringTag(string tagName, string? value)
+        public async Task<Response<string>> WriteStringTag(string tagName, string value)
         {
             var tag = new Tag<StringPlcMapper, string>()
             {
@@ -783,7 +1030,9 @@ namespace thefern.libplctag.NET
                 tag.Value = (string)value;
                 await tag.WriteAsync();
                 await tag.ReadAsync();
-                return new Response<string>(tagName, tag.Value.ToString(), "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (System.Exception)
             {
@@ -808,8 +1057,9 @@ namespace thefern.libplctag.NET
             {
                 await tag.InitializeAsync();
                 await tag.ReadAsync();
-                
-                return new Response<string[]>(tagName, tag.Value, "Success");
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<string[]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
