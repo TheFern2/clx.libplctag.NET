@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\thefern.libplctag.NET.Tests\thefern.libplctag.NET.Tests.csproj" />
     <ProjectReference Include="..\thefern.libplctag.NET\thefern.libplctag.NET.csproj" />
   </ItemGroup>
 
