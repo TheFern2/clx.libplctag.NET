@@ -10,7 +10,7 @@ namespace thefern.libplctag.NET.Tests
         /*[TestMethod]
         public async Task TestBoolWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseBOOL", TagType.Bool, false);
             var result = await myPLC.Read("BaseBOOL", TagType.Bool);
             Assert.AreEqual(result.Value, "False");
@@ -22,7 +22,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestBoolWithReadBoolTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var result = await myPLC.ReadBoolTag("BaseBOOL");
             Assert.AreEqual(result.Value, typeof(bool));
         }*/
@@ -30,7 +30,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseDINT", TagType.Dint, -545437491);
             var result = await myPLC.Read("BaseDINT", TagType.Dint);
             Assert.AreEqual(result.Value, "-545437491");
@@ -42,7 +42,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintWithReadDintTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseDINT", TagType.Dint, -545437493);
             var result = await myPLC.ReadDintTag("BaseDINT");
             Assert.AreEqual(result.Value, -545437493);
@@ -56,7 +56,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestIntWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseINT", TagType.Int, (short)8012);
             var result = await myPLC.Read("BaseINT", TagType.Int);
             Assert.AreEqual(result.Value, "8012");
@@ -68,7 +68,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestIntWithReadIntTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteIntTag("BaseINT", 7999);
             var result = await myPLC.ReadIntTag("BaseINT");            
             Assert.AreEqual(result.Value, 7999);
@@ -82,7 +82,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestLintWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseLINT", TagType.Lint, (long)-576406435);
             var result = await myPLC.Read("BaseLINT", TagType.Lint);
             Assert.AreEqual(result.Value, "-576406435");
@@ -94,7 +94,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestLintWithReadLintTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteLintTag("BaseLINT", -576403435);
             var result = await myPLC.ReadLintTag("BaseLINT");
             Assert.AreEqual(result.Value, -576403435);
@@ -108,7 +108,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestSintWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseSINT", TagType.Sint, (sbyte)-62);
             var result = await myPLC.Read("BaseSINT", TagType.Sint);
             Assert.AreEqual(result.Value, "-62");
@@ -120,7 +120,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestSintWithReadSintTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteSintTag("BaseSINT", 65);
             var result = await myPLC.ReadSintTag("BaseSINT");
             Assert.AreEqual(result.Value, 65);
@@ -134,7 +134,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestRealWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseREAL", TagType.Real, (float)2);
             var result = await myPLC.Read("BaseREAL", TagType.Real);
             Assert.AreEqual(result.Value, "2");
@@ -146,7 +146,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestRealWithReadRealTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteRealTag("BaseREAL", 2);
             var result = await myPLC.ReadRealTag("BaseREAL");
             Assert.AreEqual(result.Value, 2);
@@ -160,7 +160,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestStringWithRead()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseSTRING", TagType.String, "yXbDjcoUjcYjRQDxnZTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
             var result = await myPLC.Read("BaseSTRING", TagType.String);
             Assert.AreEqual(result.Value, "yXbDjcoUjcYjRQDxnZTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
@@ -172,7 +172,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestStringWithReadStringTag()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteStringTag("BaseSTRING", "yXbDjcoUjcYjRQDxnYTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
             var result = await myPLC.ReadStringTag("BaseSTRING");
             Assert.AreEqual(result.Value, "yXbDjcoUjcYjRQDxnYTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");

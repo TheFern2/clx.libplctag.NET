@@ -13,7 +13,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayWithReadWrite()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
 
             var result = await myPLC.Write("BaseDINTArray", TagType.Dint, alist.ToArray(), 128);
@@ -27,7 +27,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayWithReadWriteArray()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
 
             var result = await myPLC.WriteDintArray("BaseDINTArray", alist.ToArray(), 128);
@@ -40,7 +40,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayRange01()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
             await myPLC.WriteDintArray("BaseDINTArray", alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
@@ -55,7 +55,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayRange02()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
             await myPLC.WriteDintArray("BaseDINTArray", alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
@@ -70,7 +70,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayRange03()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
             await myPLC.WriteDintArray("BaseDINTArray", alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
@@ -85,7 +85,7 @@ namespace thefern.libplctag.NET.Tests
         [TestMethod]
         public async Task TestDintArrayRange04()
         {
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<int>(Randomizer.GenRandIntList(128)); // Randomize first to ensure new values
             await myPLC.WriteDintArray("BaseDINTArray", alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
