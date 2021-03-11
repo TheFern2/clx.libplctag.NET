@@ -7,13 +7,14 @@ namespace thefern.libplctag.NET.Tests
     [TestClass]
     public class WriteReadTags
     {
-        /*[TestMethod]
+        [TestMethod]
         public async Task TestBoolWithRead()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseBOOL", TagType.Bool, false);
             var result = await myPLC.Read("BaseBOOL", TagType.Bool);
             Assert.AreEqual(result.Value, "False");
+
             await myPLC.Write("BaseBOOL", TagType.Bool, true);
             var result2 = await myPLC.Read("BaseBOOL", TagType.Bool);
             Assert.AreEqual(result2.Value, "True");
@@ -24,8 +25,9 @@ namespace thefern.libplctag.NET.Tests
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var result = await myPLC.ReadBoolTag("BaseBOOL");
-            Assert.AreEqual(result.Value, typeof(bool));
-        }*/
+            //Assert.AreEqual(result.Value, typeof(bool));
+            Assert.IsInstanceOfType(result.Value, typeof(bool));
+        }
 
         [TestMethod]
         public async Task TestDintWithRead()
