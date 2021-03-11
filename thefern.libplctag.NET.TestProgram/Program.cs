@@ -82,7 +82,7 @@ namespace thefern.libplctag.NET.TestProgram
             Console.WriteLine("[{0}]", string.Join(", ", result15.Value));*/
 
             // AsyncTest.SyncAsyncComparison();
-            var result15 = await myPLC.Read("BaseINTArray", TagType.Int, 128);
+            /*var result15 = await myPLC.Read("BaseINTArray", TagType.Int, 128);
             Console.WriteLine("[{0}]", string.Join(", ", result15.Value));
 
             var alist = new List<short>(Randomizer.GenRandShortList(128)); // Randomize first to ensure new values
@@ -93,6 +93,19 @@ namespace thefern.libplctag.NET.TestProgram
             var result50 = await myPLC.Write("BaseINTArray", TagType.Int, alist.ToArray(), 128);
             //var result50 = await myPLC.WriteIntArray("BaseINTArray", myArray, 128);
             Console.WriteLine("[{0}]", string.Join(", ", result50.Value));
+
+            var result51 = await myPLC.ReadBoolArray2D("BaseBOOLArray2D", 32, 32);
+            Console.WriteLine("[{0}]", string.Join(", ", result51));
+            //Console.WriteLine("[{0}]", string.Join(", ", result51.Value.Cast<bool>()));
+            Console.WriteLine(String.Join(", ", result51.Value.Cast<bool>()));*/
+
+            var result = await myPLC.ReadBoolArray2D("SmallBOOLArray2D", 32, 32);
+            Console.WriteLine("[{0}]", string.Join(", ", result.Value.Length));
+
+            await Task.Delay(8000);
+
+            var result1 = await myPLC.WriteBoolArray2D("SmallBOOLArray2D", result.Value, 32, 32);
+            Console.WriteLine(String.Join(", ", result1.Value.Cast<bool>()));
         }
     }
 }

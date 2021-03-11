@@ -1206,7 +1206,7 @@ namespace thefern.libplctag.NET
             }
         }
 
-        /*public async Task<Response<bool[,]>> ReadBoolArray2D(string tagName, int firstDim, int secondDim, int startIndex = 0, int count = 0)
+        public async Task<Response<bool[,]>> ReadBoolArray2D(string tagName, int firstDim, int secondDim, int startIndex = 0, int count = 0)
         {
             var tag = new Tag<BoolArrayPlcMapper, bool[,]>()
             {
@@ -1216,7 +1216,36 @@ namespace thefern.libplctag.NET
                 PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
                 Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[,] { firstDim, secondDim }
+                ArrayDimensions = new int[] { firstDim, secondDim }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+                
+                return new Response<bool[,]>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                bool[,] emptyArr = { };
+                return new Response<bool[,]>(tagName, emptyArr, "Failure");
+            }
+        }
+
+        public async Task<Response<bool[,,]>> ReadBoolArray3D(string tagName, int firstDim, int secondDim, int thirdDim, int startIndex = 0, int count = 0)
+        {
+            var tag = new Tag<BoolArrayPlcMapper, bool[,,]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { firstDim, secondDim, thirdDim }
             };
 
             try
@@ -1226,27 +1255,14 @@ namespace thefern.libplctag.NET
                 var tagValue = tag.Value;
                 tag.Dispose();
 
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    bool[] emptyArr = { };
-                    return new Response<bool[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    List<bool> tagValueList = new List<bool>(tagValue);
-                    return new Response<bool[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
-                }
-
-                return new Response<bool[]>(tagName, tagValue, "Success");
+                return new Response<bool[,,]>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
-                bool[] emptyArr = { };
-                return new Response<bool[]>(tagName, emptyArr, "Failure");
+                bool[,,] emptyArr = { };
+                return new Response<bool[,,]>(tagName, emptyArr, "Failure");
             }
-        }*/
+        }
 
         public async Task<Response<bool[]>> WriteBoolArray(string tagName, bool[] value, int arrayLength, int startIndex = 0, int count = 0)
         {
@@ -1302,7 +1318,69 @@ namespace thefern.libplctag.NET
                 bool[] emptyArr = { };
                 return new Response<bool[]>(tagName, emptyArr, "Write Failure");
             }
-        }        
+        }
+
+        public async Task<Response<bool[,]>> WriteBoolArray2D(string tagName, bool[,] value, int firstDim, int secondDim, int startIndex = 0, int count = 0)
+        {
+            var tag = new Tag<BoolArrayPlcMapper, bool[,]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { firstDim, secondDim }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                tag.Value = value;
+                await tag.WriteAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();                
+
+                return new Response<bool[,]>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                bool[,] emptyArr = { };
+                return new Response<bool[,]>(tagName, emptyArr, "Failure");
+            }
+        }
+
+        public async Task<Response<bool[,,]>> WriteBoolArray3D(string tagName, bool[,,] value, int firstDim, int secondDim, int thirdDim, int startIndex = 0, int count = 0)
+        {
+            var tag = new Tag<BoolArrayPlcMapper, bool[,,]>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout),
+                ArrayDimensions = new int[] { firstDim, secondDim, thirdDim }
+            };
+
+            try
+            {
+                await tag.InitializeAsync();
+                tag.Value = value;
+                await tag.WriteAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+
+                return new Response<bool[,,]>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                bool[,,] emptyArr = { };
+                return new Response<bool[,,]>(tagName, emptyArr, "Failure");
+            }
+        }
 
         public async Task<Response<float>> ReadRealTag(string tagName)
         {

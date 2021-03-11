@@ -99,6 +99,26 @@ namespace thefern.libplctag.NET.Tests
         public async Task TestBoolReadArray2D()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
+            var result = await myPLC.ReadBoolArray2D("SmallBOOLArray2D", 32, 32);
+            Assert.AreEqual("Success", result.Status);
+
+            await Task.Delay(1000);
+
+            var result1 = await myPLC.WriteBoolArray2D("SmallBOOLArray2D", result.Value, 32, 32);
+            Assert.AreEqual("Success", result1.Status);
+        }
+
+        [TestMethod]
+        public async Task TestBoolReadArray3D()
+        {
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
+            var result = await myPLC.ReadBoolArray3D("BaseBOOLArray3D", 32, 32, 32);
+            Assert.AreEqual("Success", result.Status);
+
+            await Task.Delay(1000);
+
+            var result1 = await myPLC.WriteBoolArray3D("BaseBOOLArray3D", result.Value, 32, 32, 32);
+            Assert.AreEqual("Success", result1.Status);
         }
     }
 }
