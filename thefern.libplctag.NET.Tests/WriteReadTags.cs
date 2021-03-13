@@ -1,3 +1,4 @@
+using libplctag.DataTypes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +22,10 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestBoolWithReadBoolTag()
+        public async Task TestBoolWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
-            var result = await myPLC.ReadBoolTag("BaseBOOL");
+            var result = await myPLC.ReadTag<BoolPlcMapper, bool>("BaseBOOL");
             //Assert.AreEqual(result.Value, typeof(bool));
             Assert.IsInstanceOfType(result.Value, typeof(bool));
         }
@@ -42,15 +43,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestDintWithReadDintTag()
+        public async Task TestDintWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseDINT", TagType.Dint, -545437493);
-            var result = await myPLC.ReadDintTag("BaseDINT");
+            var result = await myPLC.ReadTag<DintPlcMapper, int>("BaseDINT");
             Assert.AreEqual(result.Value, -545437493);
             Assert.IsInstanceOfType(result.Value, typeof(int));
             await myPLC.Write("BaseDINT", TagType.Dint, -545437484);
-            var result2 = await myPLC.ReadDintTag("BaseDINT");
+            var result2 = await myPLC.ReadTag<DintPlcMapper, int>("BaseDINT");
             Assert.AreEqual(result2.Value, -545437484);
             Assert.IsInstanceOfType(result2.Value, typeof(int));
         }
@@ -68,15 +69,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestIntWithReadIntTag()
+        public async Task TestIntWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteIntTag("BaseINT", 7999);
-            var result = await myPLC.ReadIntTag("BaseINT");            
+            var result = await myPLC.ReadTag<IntPlcMapper, short>("BaseINT");            
             Assert.AreEqual(result.Value, 7999);
             Assert.IsInstanceOfType(result.Value, typeof(short));
             await myPLC.WriteIntTag("BaseINT", 6512);
-            var result2 = await myPLC.ReadIntTag("BaseINT");
+            var result2 = await myPLC.ReadTag<IntPlcMapper, short>("BaseINT");  
             Assert.AreEqual(result2.Value, 6512);
             Assert.IsInstanceOfType(result2.Value, typeof(short));
         }
@@ -94,15 +95,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestLintWithReadLintTag()
+        public async Task TestLintWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteLintTag("BaseLINT", -576403435);
-            var result = await myPLC.ReadLintTag("BaseLINT");
+            var result = await myPLC.ReadTag<LintPlcMapper, long>("BaseLINT");  
             Assert.AreEqual(result.Value, -576403435);
             Assert.IsInstanceOfType(result.Value, typeof(long));
             await myPLC.WriteLintTag("BaseLINT", 566906435);
-            var result2 = await myPLC.ReadLintTag("BaseLINT");
+            var result2 = await myPLC.ReadTag<LintPlcMapper, long>("BaseLINT"); 
             Assert.AreEqual(result2.Value, 566906435);
             Assert.IsInstanceOfType(result2.Value, typeof(long));
         }
@@ -120,15 +121,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestSintWithReadSintTag()
+        public async Task TestSintWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteSintTag("BaseSINT", 65);
-            var result = await myPLC.ReadSintTag("BaseSINT");
+            var result = await myPLC.ReadTag<SintPlcMapper, sbyte>("BaseSINT"); 
             Assert.AreEqual(result.Value, 65);
             Assert.IsInstanceOfType(result.Value, typeof(sbyte));
             await myPLC.WriteSintTag("BaseSINT", -65);
-            var result2 = await myPLC.ReadSintTag("BaseSINT");
+            var result2 = await myPLC.ReadTag<SintPlcMapper, sbyte>("BaseSINT");
             Assert.AreEqual(result2.Value, -65);
             Assert.IsInstanceOfType(result2.Value, typeof(sbyte));
         }
@@ -146,15 +147,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestRealWithReadRealTag()
+        public async Task TestRealWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteRealTag("BaseREAL", 2);
-            var result = await myPLC.ReadRealTag("BaseREAL");
+            var result = await myPLC.ReadTag<RealPlcMapper, float>("BaseREAL");
             Assert.AreEqual(result.Value, 2);
             Assert.IsInstanceOfType(result.Value, typeof(float));
             await myPLC.WriteRealTag("BaseREAL", (float?)2.5);
-            var result2 = await myPLC.ReadRealTag("BaseREAL");
+            var result2 = await myPLC.ReadTag<RealPlcMapper, float>("BaseREAL");
             Assert.AreEqual(result2.Value, 2.5);
             Assert.IsInstanceOfType(result2.Value, typeof(float));
         }
@@ -172,15 +173,15 @@ namespace thefern.libplctag.NET.Tests
         }
 
         [TestMethod]
-        public async Task TestStringWithReadStringTag()
+        public async Task TestStringWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.WriteStringTag("BaseSTRING", "yXbDjcoUjcYjRQDxnYTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
-            var result = await myPLC.ReadStringTag("BaseSTRING");
+            var result = await myPLC.ReadTag<StringPlcMapper, string>("BaseSTRING");
             Assert.AreEqual(result.Value, "yXbDjcoUjcYjRQDxnYTeDCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
             Assert.IsInstanceOfType(result.Value, typeof(string));
             await myPLC.WriteStringTag("BaseSTRING", "yFbDjcoUjcYjRQDxnZTeXCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
-            var result2 = await myPLC.ReadStringTag("BaseSTRING");
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string>("BaseSTRING");
             Assert.AreEqual(result2.Value, "yFbDjcoUjcYjRQDxnZTeXCdZuOTXrJMHJIBeZPgUEPsTjqLNNk");
             Assert.IsInstanceOfType(result2.Value, typeof(string));
         }

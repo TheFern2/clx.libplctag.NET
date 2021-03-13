@@ -17,6 +17,12 @@ namespace thefern.libplctag.NET
             Status = status;
         }
 
+        public Response(string tagName, string status)
+        {
+            TagName = tagName;
+            Status = status;
+        }
+
         public override string ToString()
         {
             return "Response: " + TagName + " " + Value + " " + Status;

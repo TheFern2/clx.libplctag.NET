@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using libplctag.DataTypes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
             string[] arrString = Array.ConvertAll(alist.ToArray(), Convert.ToString);
             Assert.IsTrue(result2.Value.SequenceEqual(arrString));
         }
@@ -33,7 +34,7 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
             Assert.IsTrue(result2.Value.SequenceEqual(alist.ToArray()));
         }
 
@@ -48,7 +49,8 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 0, 10);
+            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 0, 10);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
 
@@ -63,7 +65,8 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 10, 10);
+            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 10, 10);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
 
@@ -91,7 +94,8 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 118, 10);
+            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 118, 10);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
     }
