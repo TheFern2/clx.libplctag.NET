@@ -130,126 +130,201 @@ namespace thefern.libplctag.NET
         /// <param name="tagType">Tag type use TagType enum</param>
         /// <param name="arrayLength">Length of the array</param>
         /// <returns>Returns an array of strings, regardless of the tagType</returns>
-        // public async Task<Response<string[]>> Read(string tagName, TagType tagType, int arrayLength, int startIndex = 0, int count = 0)
-        // {
-        //     switch (tagType)
-        //     {
-        //         case TagType.Bool:
-        //             var resultsBoolArray = await ReadBoolArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsBoolArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsBoolArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+        public async Task<Response<string[]>> Read(string tagName, TagType tagType, int arrayLength, int startIndex = 0, int count = 0)
+        {
+            switch (tagType)
+            {
+                case TagType.Bool:
+                    var resultsBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    if (resultsBoolArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsBoolArray.Value, Convert.ToString);
+                        // Sanity check to make sure we don't try to access items indices bigger than array
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
 
-        //         case TagType.Bit:
-        //             var resultsBitArray = await ReadBoolArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsBitArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
 
-        //         case TagType.Dint:
-        //             var resultsDintArray = await ReadDintArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsDintArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
 
-        //         case TagType.Int:
-        //             var resultsIntArray = await ReadIntArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsIntArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                case TagType.Bit:
+                    var resultsBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    if (resultsBitArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
+                        // Sanity check to make sure we don't try to access items indices bigger than array
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
 
-        //         case TagType.Sint:
-        //             var resultsSintArray = await ReadSintArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsSintArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
 
-        //         case TagType.Lint:
-        //             var resultsLintArray = await ReadLintArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsLintArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                case TagType.Dint:
+                    var resultsDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength });
+                    if (resultsDintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
+                        // Sanity check to make sure we don't try to access items indices bigger than array
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
 
-        //         case TagType.Real:
-        //             var resultsRealArray = await ReadRealArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsRealArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
 
-        //         case TagType.String:
-        //             var resultsStringArray = await ReadStringArray(tagName, arrayLength, startIndex, count);
-        //             if (resultsStringArray.Status == "Success")
-        //             {
-        //                 string[] arrString = Array.ConvertAll(resultsStringArray.Value, Convert.ToString);
-        //                 return new Response<string[]>(tagName, arrString, "Success");
-        //             }
-        //             else
-        //             {
-        //                 string[] emptyArray = { };
-        //                 return new Response<string[]>(tagName, emptyArray, "Failure");
-        //             }
+                case TagType.Int:
+                    var resultsIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength });
+                    if (resultsIntArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
 
-        //         default:
-        //             string[] emptyArrDefault = { };
-        //             return new Response<string[]>(tagName, emptyArrDefault, "Failure");
-        //     }
-        // }
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
+
+                case TagType.Sint:
+                    var resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength });
+                    if (resultsSintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
+
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
+
+                case TagType.Lint:
+                    var resultsLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength });
+                    if (resultsLintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
+
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
+
+                case TagType.Real:
+                    var resultsRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength });
+                    if (resultsRealArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
+
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
+
+                case TagType.String:
+                    var resultsStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength });
+                    if (resultsStringArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsStringArray.Value, Convert.ToString);
+                        if (startIndex + count > arrayLength)
+                        {
+                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                        }
+
+                        if (count > 0)
+                        {
+                            List<string> tagValueList = new List<string>(arrString);
+                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                        }
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        return new Response<string[]>(tagName, "Failure");
+                    }
+
+                default:
+                    return new Response<string[]>(tagName, "Failure");
+            }
+        }
 
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBool = await WriteBoolTag(tagName, value as bool?);
+                    var resultsBool = await WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
 
                     if (resultsBool.Status == "Success")
                     {
@@ -257,78 +332,89 @@ namespace thefern.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string>(tagName, "None", "Failure");
+                        return new Response<string>(tagName, "Failure");
                     }
 
-                case TagType.Bit:
-                    var resultsBit = await WriteBoolTag(tagName, value as bool?);
+                // case TagType.Bit:
+                //     var resultsBit = await WriteBoolTag(tagName, value as bool?);
 
-                    if (resultsBit.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsBit.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                //     if (resultsBit.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsBit.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
-                case TagType.Dint:
-                    var resultsDint = await WriteDintTag(tagName, value as int?);
-                    if (resultsDint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsDint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                // case TagType.Dint:
+                //     var resultsDint = await WriteDintTag(tagName, value as int?);
+                //     if (resultsDint.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsDint.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
-                case TagType.Int:
-                    var resultsInt = await WriteIntTag(tagName, value as short?);
-                    if (resultsInt.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsInt.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                // case TagType.Int:
+                //     var resultsInt = await WriteIntTag(tagName, value as short?);
+                //     if (resultsInt.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsInt.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
-                case TagType.Sint:
-                    var resultsSint = await WriteSintTag(tagName, value as sbyte?);
-                    if (resultsSint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsSint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                // case TagType.Sint:
+                //     var resultsSint = await WriteSintTag(tagName, value as sbyte?);
+                //     if (resultsSint.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsSint.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
-                case TagType.Lint:
-                    var resultsLint = await WriteLintTag(tagName, value as long?);
-                    if (resultsLint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsLint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                // case TagType.Lint:
+                //     var resultsLint = await WriteLintTag(tagName, value as long?);
+                //     if (resultsLint.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsLint.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
-                case TagType.Real:
-                    var resultsReal = await WriteRealTag(tagName, value as float?);
-                    if (resultsReal.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsReal.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
+                // case TagType.Real:
+                //     var resultsReal = await WriteRealTag(tagName, value as float?);
+                //     if (resultsReal.Status == "Success")
+                //     {
+                //         return new Response<string>(tagName, resultsReal.Value.ToString(), "Success");
+                //     }
+                //     else
+                //     {
+                //         return new Response<string>(tagName, "None", "Failure");
+                //     }
 
                 case TagType.String:
-                    return await WriteStringTag(tagName, value as string);
+                    var resultsString = await WriteTag<StringPlcMapper, string>(tagName, (string)value);
+
+                    if (resultsString.Status == "Success")
+                    {
+                        return new Response<string>(tagName, resultsString.Value.ToString(), "Success");
+                    }
+                    else
+                    {
+                        return new Response<string>(tagName, "Failure");
+                    }
+
+                //return await WriteStringTag(tagName, value as string);
                 default:
                     return new Response<string>(tagName, "None", "Wrong Type");
             }
@@ -340,7 +426,40 @@ namespace thefern.libplctag.NET
             {
                 case TagType.Bool:
 
-                    var resultsBoolArray = await WriteBoolArray(tagName, value as bool[], arrayLength, startIndex, count);
+                    // read online array first
+                    var readBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readBoolArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            //string[] arrBool = Array.ConvertAll(readBoolArray.Value, Convert.ToBoolean);
+                            List<bool> tagValueList = new List<bool>(readBoolArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
+                            var writeBoolArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeBoolArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeBoolArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // Original code
+                    var resultsBoolArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength });
 
                     if (resultsBoolArray.Status == "Success")
                     {
@@ -349,96 +468,128 @@ namespace thefern.libplctag.NET
                     }
                     else
                     {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                        return new Response<string[]>(tagName, "Failure");
                     }
 
-                case TagType.Bit:
-                    var resultsBitArray = await WriteBoolArray(tagName, value as bool[], arrayLength, startIndex, count);
+                // case TagType.Bit:
+                //     var resultsBitArray = await WriteBoolArray(tagName, value as bool[], arrayLength, startIndex, count);
 
-                    if (resultsBitArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsBitArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
-                case TagType.Dint:
-                    var resultsDintArray = await WriteDintArray(tagName, value as int[], arrayLength, startIndex, count);
+                // case TagType.Dint:
+                //     var resultsDintArray = await WriteDintArray(tagName, value as int[], arrayLength, startIndex, count);
 
-                    if (resultsDintArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsDintArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
-                case TagType.Int:
-                    var resultsIntArray = await WriteIntArray(tagName, value as short[], arrayLength, startIndex, count);
+                // case TagType.Int:
+                //     var resultsIntArray = await WriteIntArray(tagName, value as short[], arrayLength, startIndex, count);
 
-                    if (resultsIntArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsIntArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
-                case TagType.Sint:
-                    var resultsSintArray = await WriteSintArray(tagName, value as sbyte[], arrayLength, startIndex, count);
+                // case TagType.Sint:
+                //     var resultsSintArray = await WriteSintArray(tagName, value as sbyte[], arrayLength, startIndex, count);
 
-                    if (resultsSintArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsSintArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
-                case TagType.Lint:
-                    var resultsLintArray = await WriteLintArray(tagName, value as long[], arrayLength, startIndex, count);
+                // case TagType.Lint:
+                //     var resultsLintArray = await WriteLintArray(tagName, value as long[], arrayLength, startIndex, count);
 
-                    if (resultsLintArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsLintArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
-                case TagType.Real:
-                    var resultsRealArray = await WriteRealArray(tagName, value as float[], arrayLength, startIndex, count);
+                // case TagType.Real:
+                //     var resultsRealArray = await WriteRealArray(tagName, value as float[], arrayLength, startIndex, count);
 
-                    if (resultsRealArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        string[] emptyArray = { };
-                        return new Response<string[]>(tagName, emptyArray, "Failure");
-                    }
+                //     if (resultsRealArray.Status == "Success")
+                //     {
+                //         string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
+                //         return new Response<string[]>(tagName, arrString, "Success");
+                //     }
+                //     else
+                //     {
+                //         string[] emptyArray = { };
+                //         return new Response<string[]>(tagName, emptyArray, "Failure");
+                //     }
 
                 case TagType.String:
-                    var resultsStringArray = await WriteStringArray(tagName, value as string[], arrayLength, startIndex, count);
+                    // read online array first
+                    var readStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readStringArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            //string[] arrBool = Array.ConvertAll(readBoolArray.Value, Convert.ToBoolean);
+                            List<string> tagValueList = new List<string>(readStringArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<string>)value);
+                            var writeBoolArrayRange = await WriteTag<StringPlcMapper, string[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeBoolArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeBoolArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // original code
+                    var resultsStringArray = await WriteTag<StringPlcMapper, string[]>(tagName, value as string[], new int[] { arrayLength });
 
                     if (resultsStringArray.Status == "Success")
                     {
@@ -457,359 +608,7 @@ namespace thefern.libplctag.NET
             }
         }
 
-        public async Task<Response<int>> WriteDintTag(string tagName, int? value)
-        {
-            var tag = new Tag<DintPlcMapper, int>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (int)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<int>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<int>(tagName, -1, "Write Failure");
-            }
-        }
-
-
-
-        public async Task<Response<int[]>> WriteDintArray(string tagName, int[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<DintPlcMapper, int[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                int[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    int[] emptyArr = { };
-                    return new Response<int[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<int> tagValueList = new List<int>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<int> updatedValueList = new List<int>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<int[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<int[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                int[] emptyArr = { };
-                return new Response<int[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<short>> WriteIntTag(string tagName, short? value)
-        {
-            var tag = new Tag<IntPlcMapper, short>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (short)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<short>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<short>(tagName, -1, "Write Failure");
-            }
-        }
-
-
-
-        public async Task<Response<short[]>> WriteIntArray(string tagName, short[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<IntPlcMapper, short[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                short[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    short[] emptyArr = { };
-                    return new Response<short[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<short> tagValueList = new List<short>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<short> updatedValueList = new List<short>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<short[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<short[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                short[] emptyArr = { };
-                return new Response<short[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<sbyte>> WriteSintTag(string tagName, sbyte? value)
-        {
-            var tag = new Tag<SintPlcMapper, sbyte>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (sbyte)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<sbyte>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<sbyte>(tagName, -1, "Write Failure");
-            }
-        }
-
-
-
-        public async Task<Response<sbyte[]>> WriteSintArray(string tagName, sbyte[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<SintPlcMapper, sbyte[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                sbyte[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    sbyte[] emptyArr = { };
-                    return new Response<sbyte[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<sbyte> tagValueList = new List<sbyte>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<sbyte> updatedValueList = new List<sbyte>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<sbyte[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<sbyte[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                sbyte[] emptyArr = { };
-                return new Response<sbyte[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<long>> WriteLintTag(string tagName, long? value)
-        {
-            var tag = new Tag<LintPlcMapper, long>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (long)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<long>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<long>(tagName, -1, "Write Failure");
-            }
-        }
-
-
-
-        public async Task<Response<long[]>> WriteLintArray(string tagName, long[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<LintPlcMapper, long[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                long[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    long[] emptyArr = { };
-                    return new Response<long[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<long> tagValueList = new List<long>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<long> updatedValueList = new List<long>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<long[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<long[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                long[] emptyArr = { };
-                return new Response<long[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<T>> ReadTag<M, T>(string tagName, int arrayLength = 0) where M : IPlcMapper<T>, new()
+        public async Task<Response<T>> ReadTag<M, T>(string tagName) where M : IPlcMapper<T>, new()
         {
 
             var tag = new Tag<M, T>()
@@ -822,9 +621,52 @@ namespace thefern.libplctag.NET
                 Timeout = TimeSpan.FromSeconds(Timeout)
             };
 
-            if (arrayLength > 0)
+            try
             {
-                tag.ArrayDimensions = new int[] { arrayLength };
+                await tag.InitializeAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+
+                return new Response<T>(tagName, tagValue, "Success");
+            }
+            catch (System.Exception)
+            {
+                return new Response<T>(tagName, "Failure");
+            }
+        }
+
+        public async Task<Response<T>> ReadTag<M, T>(string tagName, int[] arrayDim = null) where M : IPlcMapper<T>, new()
+        {
+
+            var tag = new Tag<M, T>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout)
+            };
+
+            // Sanity Check, only support 3 dims in arrays for now
+            if (arrayDim.Length > 3)
+            {
+                return new Response<T>(tagName, "Failure, Out of bounds");
+            }
+
+            if (arrayDim.Length > 0 && arrayDim[0] > 0)
+            {
+                tag.ArrayDimensions = new int[] { arrayDim[0] };
+                if (arrayDim.Length > 1 && arrayDim[1] > 0)
+                {
+                    tag.ArrayDimensions = new int[] { arrayDim[0], arrayDim[1] };
+
+                    if (arrayDim.Length > 2 && arrayDim[2] > 0)
+                    {
+                        tag.ArrayDimensions = new int[] { arrayDim[0], arrayDim[1], arrayDim[2] };
+                    }
+                }
             }
 
             try
@@ -842,315 +684,10 @@ namespace thefern.libplctag.NET
             }
         }
 
-        // public async Task<Response<T>> ReadTag<M, T>(string tagName, int arrayLength = 0, int startIndex = 0, int count = 0) where M : IPlcMapper<T>, new()
-        // {
-
-        //     var tag = new Tag<M, T>()
-        //     {
-        //         Name = tagName,
-        //         Gateway = _ipAddress,
-        //         Path = _path,
-        //         PlcType = PlcType.ControlLogix,
-        //         Protocol = Protocol.ab_eip,
-        //         Timeout = TimeSpan.FromSeconds(Timeout)
-        //     };
-
-        //     if (arrayLength > 0)
-        //     {
-        //         tag.ArrayDimensions = new int[] { arrayLength };
-        //     }
-
-        //     // if (arrayLength[0] > 0)
-        //     // {
-        //     //     tag.ArrayDimensions = new int[] { arrayLength[0] };
-
-        //     //     if (arrayLength[1] > 0)
-        //     //     {
-        //     //         tag.ArrayDimensions = new int[] { arrayLength[0], arrayLength[1] };
-
-        //     //         if (arrayLength[2] > 0)
-        //     //         {
-        //     //             tag.ArrayDimensions = new int[] { arrayLength[0], arrayLength[1], arrayLength[2] };
-        //     //         }
-        //     //     }
-        //     // }
-
-        //     try
-        //     {
-        //         await tag.InitializeAsync();
-        //         await tag.ReadAsync();
-        //         var tagValue = tag.Value;
-        //         tag.Dispose();
-
-        //         // Sanity check to make sure we don't try to access items indices bigger than array
-        //         if (startIndex + count > arrayLength)
-        //         {
-        //             return new Response<T[]>(tagName, "Failure, Out of bounds");
-        //         }
-
-        //         if (count > 0)
-        //         {
-        //             List<T> tagValueList = new List<T>((IEnumerable<T>)tagValue);
-        //             return new Response<T[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
-
-        //         }
-
-        //         List<T> tagValueList2 = new List<T>((IEnumerable<T>)tagValue);
-        //         return new Response<T[]>(tagName, tagValueList2.ToArray(), "Success");
-        //     }
-        //     catch (System.Exception)
-        //     {
-        //         return new Response<T[]>(tagName, "Failure");
-        //     }
-        // }
-
-        public int WriteBoolTagLL(string tagName, byte writeValue)
+        public async Task<Response<T>> WriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
         {
-            var tagHandle = plctag.plc_tag_create($"protocol=ab_eip&gateway={_ipAddress}&path={_path}&plc=LGX&elem_size=1&elem_count=1&debug=1&name={tagName}", 1000);
-            plctag.plc_tag_read(tagHandle, 1000);
 
-            //Console.WriteLine(value);            
-            plctag.plc_tag_set_uint8(tagHandle, 0, writeValue);
-            plctag.plc_tag_write(tagHandle, 1000);
-            var value = plctag.plc_tag_get_uint8(tagHandle, 0);
-            return value;
-        }
-
-        public async Task<Response<bool>> WriteBoolTag(string tagName, bool? value)
-        {
-            var tag = new Tag<BoolPlcMapper, bool>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (bool)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<bool>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<bool>(tagName, false, "Write Failure");
-            }
-        }
-
-        public async Task<Response<bool[]>> WriteBoolArray(string tagName, bool[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<BoolArrayPlcMapper, bool[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                bool[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    bool[] emptyArr = { };
-                    return new Response<bool[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<bool> tagValueList = new List<bool>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    return new Response<bool[]>(tagName, tagValue, "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<bool[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                bool[] emptyArr = { };
-                return new Response<bool[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<bool[,]>> WriteBoolArray2D(string tagName, bool[,] value, int firstDim, int secondDim, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<BoolArrayPlcMapper, bool[,]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { firstDim, secondDim }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-
-                return new Response<bool[,]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                bool[,] emptyArr = { };
-                return new Response<bool[,]>(tagName, emptyArr, "Failure");
-            }
-        }
-
-        public async Task<Response<bool[,,]>> WriteBoolArray3D(string tagName, bool[,,] value, int firstDim, int secondDim, int thirdDim, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<BoolArrayPlcMapper, bool[,,]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { firstDim, secondDim, thirdDim }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-
-                return new Response<bool[,,]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                bool[,,] emptyArr = { };
-                return new Response<bool[,,]>(tagName, emptyArr, "Failure");
-            }
-        }
-
-        public async Task<Response<float>> WriteRealTag(string tagName, float? value)
-        {
-            var tag = new Tag<RealPlcMapper, float>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout)
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                tag.Value = (float)value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
-                var tagValue = tag.Value;
-                tag.Dispose();
-                return new Response<float>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                return new Response<float>(tagName, -1, "Write Failure");
-            }
-        }
-
-        public async Task<Response<float[]>> WriteRealArray(string tagName, float[] value, int arrayLength, int startIndex = 0, int count = 0)
-        {
-            var tag = new Tag<RealPlcMapper, float[]>()
-            {
-                Name = tagName,
-                Gateway = _ipAddress,
-                Path = _path,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
-            };
-
-            try
-            {
-                await tag.InitializeAsync();
-                float[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    float[] emptyArr = { };
-                    return new Response<float[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<float> tagValueList = new List<float>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<float> updatedValueList = new List<float>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<float[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<float[]>(tagName, tagValue, "Success");
-            }
-            catch (System.Exception)
-            {
-                float[] emptyArr = { };
-                return new Response<float[]>(tagName, emptyArr, "Write Failure");
-            }
-        }
-
-        public async Task<Response<string>> WriteStringTag(string tagName, string value)
-        {
-            var tag = new Tag<StringPlcMapper, string>()
+            var tag = new Tag<M, T>()
             {
                 Name = tagName,
                 Gateway = _ipAddress,
@@ -1168,74 +705,63 @@ namespace thefern.libplctag.NET
                 await tag.ReadAsync();
                 var tagValue = tag.Value;
                 tag.Dispose();
-
-                return new Response<string>(tagName, tagValue, "Success");
+                return new Response<T>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
-                return new Response<string>(tagName, "None", "Write Failure");
+                return new Response<T>(tagName, "Write Failure");
             }
         }
 
-
-
-        public async Task<Response<string[]>> WriteStringArray(string tagName, string[] value, int arrayLength, int startIndex = 0, int count = 0)
+        public async Task<Response<T>> WriteTag<M, T>(string tagName, T value, int[] arrayDim = null) where M : IPlcMapper<T>, new()
         {
-            var tag = new Tag<StringPlcMapper, string[]>()
+
+            var tag = new Tag<M, T>()
             {
                 Name = tagName,
                 Gateway = _ipAddress,
                 Path = _path,
                 PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
-                Timeout = TimeSpan.FromSeconds(Timeout),
-                ArrayDimensions = new int[] { arrayLength }
+                Timeout = TimeSpan.FromSeconds(Timeout)
             };
+
+            // Sanity Check, only support 3 dims in arrays for now
+            if (arrayDim.Length > 3)
+            {
+                return new Response<T>(tagName, "Failure, Out of bounds");
+            }
+
+            if (arrayDim.Length > 0 && arrayDim[0] > 0)
+            {
+                tag.ArrayDimensions = new int[] { arrayDim[0] };
+                if (arrayDim.Length > 1 && arrayDim[1] > 0)
+                {
+                    tag.ArrayDimensions = new int[] { arrayDim[0], arrayDim[1] };
+
+                    if (arrayDim.Length > 2 && arrayDim[2] > 0)
+                    {
+                        tag.ArrayDimensions = new int[] { arrayDim[0], arrayDim[1], arrayDim[2] };
+                    }
+                }
+            }
 
             try
             {
                 await tag.InitializeAsync();
-                string[] tagValue = { };
-
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    string[] emptyArr = { };
-                    return new Response<string[]>(tagName, emptyArr, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    await tag.ReadAsync();
-                    List<string> tagValueList = new List<string>(tag.Value); // plc online value
-                    tagValueList.RemoveRange(startIndex, count);
-                    tagValueList.InsertRange(startIndex, value);
-                    tag.Value = tagValueList.ToArray();
-                    await tag.WriteAsync(); // write new range to plc
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                    List<string> updatedValueList = new List<string>(tagValue);
-                    var updatedValue = updatedValueList.GetRange(startIndex, count);
-                    return new Response<string[]>(tagName, updatedValue.ToArray(), "Success");
-                }
-                else
-                {
-                    tag.Value = value;
-                    await tag.WriteAsync();
-                    await tag.ReadAsync();
-                    tagValue = tag.Value;
-                    tag.Dispose();
-                }
-
-                return new Response<string[]>(tagName, tagValue, "Success");
+                tag.Value = value;
+                await tag.WriteAsync();
+                await tag.ReadAsync();
+                var tagValue = tag.Value;
+                tag.Dispose();
+                return new Response<T>(tagName, tagValue, "Success");
             }
             catch (System.Exception)
             {
-                string[] emptyArr = { };
-                return new Response<string[]>(tagName, emptyArr, "Write Failure");
+                return new Response<T>(tagName, "Write Failure");
             }
         }
+
     }
 
     public enum TagType

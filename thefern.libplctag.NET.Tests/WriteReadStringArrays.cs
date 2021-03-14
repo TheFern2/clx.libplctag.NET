@@ -20,7 +20,7 @@ namespace thefern.libplctag.NET.Tests
             var result = await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
+            var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128);
             string[] arrString = Array.ConvertAll(alist.ToArray(), Convert.ToString);
             Assert.IsTrue(result2.Value.SequenceEqual(arrString));
         }
@@ -31,10 +31,10 @@ namespace thefern.libplctag.NET.Tests
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<string>(Randomizer.GenRandStringList(128)); // Randomize first to ensure new values
 
-            var result = await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
+            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
+            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", new int[] { 128 });
             Assert.IsTrue(result2.Value.SequenceEqual(alist.ToArray()));
         }
 
@@ -43,14 +43,13 @@ namespace thefern.libplctag.NET.Tests
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<string>(Randomizer.GenRandStringList(128)); // Randomize first to ensure new values
-            await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
+            await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 0, 10);
+            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 0, 10);
-            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
+            var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 0, 10);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
 
@@ -59,14 +58,13 @@ namespace thefern.libplctag.NET.Tests
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<string>(Randomizer.GenRandStringList(128)); // Randomize first to ensure new values
-            await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
+            await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 10, 10);
+            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 10, 10);
-            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
+            var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 10, 10);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
 
@@ -75,10 +73,10 @@ namespace thefern.libplctag.NET.Tests
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<string>(Randomizer.GenRandStringList(128)); // Randomize first to ensure new values
-            await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
+            await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 128, 10);
+            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 119, 10);
             Assert.AreEqual("Failure, Out of bounds", result.Status);
 
         }
@@ -88,14 +86,13 @@ namespace thefern.libplctag.NET.Tests
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             var alist = new List<string>(Randomizer.GenRandStringList(128)); // Randomize first to ensure new values
-            await myPLC.WriteStringArray("BaseSTRINGArray", alist.ToArray(), 128);
+            await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.WriteStringArray("BaseSTRINGArray", updateValues.ToArray(), 128, 118, 10);
+            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            // var result2 = await myPLC.ReadStringArray("BaseSTRINGArray", 128, 118, 10);
-            var result2 = await myPLC.ReadTag<StringPlcMapper, string[]>("BaseSTRINGArray", 128);
+            var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 118, 10);
             Assert.IsTrue(result2.Value.SequenceEqual(updateValues.ToArray()));
         }
     }

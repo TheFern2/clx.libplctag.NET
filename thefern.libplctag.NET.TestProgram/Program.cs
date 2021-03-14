@@ -17,7 +17,7 @@ namespace thefern.libplctag.NET.TestProgram
              * This is just a playground for testing the library.
              */
 
-            var myPLC = new PLC("192.168.56.106", 2);
+            var myPLC = new PLC("192.168.1.196", 2);
             /*var result = await myPLC.Read("BaseBOOL", TagType.Bool).ConfigureAwait(false);
             Console.WriteLine(result);
 
@@ -118,16 +118,34 @@ namespace thefern.libplctag.NET.TestProgram
             var result3 = await myPLC.ReadTag<DintPlcMapper, int>("BaseDINTsdfsdf");
             Console.WriteLine("[{0}]", string.Join(", ", result3));
 
-            var result4 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[]>("BaseBOOLArray", 128);
+            var result4 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[]>("BaseBOOLArray", new int[] { 128 });
             Console.WriteLine("[{0}]", string.Join(", ", result4));
 
-            // var result5 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[,]>("SmallBOOLArray2D", new int[] { 32, 32 });
-            // Console.WriteLine("[{0}]", string.Join(", ", result5));
+            var result5 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[,]>("SmallBOOLArray2D", new int[] { 32, 32 });
+            Console.WriteLine("[{0}]", string.Join(", ", result5));
             //Console.WriteLine(String.Join(", ", result5.Value.Cast<bool>()));
 
-            // var result6 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[,,]>("BaseBOOLArray3D", new int[] { 32, 32, 32 });
-            // Console.WriteLine("[{0}]", string.Join(", ", result6));
+            var result6 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[,,]>("BaseBOOLArray3D", new int[] { 32, 32, 32 });
+            Console.WriteLine("[{0}]", string.Join(", ", result6));
             //Console.WriteLine(String.Join(", ", result6.Value.Cast<bool>()));
+
+            var result7 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128);
+            Console.WriteLine("[{0}]", string.Join(", ", result7.Value));
+            System.Console.WriteLine(result7.Value.GetType());
+
+            var result8 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[]>("BaseBOOLArray", new int[] { 128 });
+            Console.WriteLine("[{0}]", string.Join(", ", result8.Value));
+
+            var result9 = await myPLC.WriteTag<BoolPlcMapper, bool>("BaseBOOL", true);
+            Console.WriteLine("[{0}]", string.Join(", ", result9));
+
+            // write a whole bool array
+            List<string> boolList = new List<string>(Randomizer.GenRandStringList(10));
+            var result10 = await myPLC.Write("BaseSTRINGArray", TagType.String, boolList.ToArray(), 128, 0, 10);
+            Console.WriteLine("[{0}]", string.Join(", ", result10));
+
+            var result11 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 0, 10);
+            Console.WriteLine("[{0}]", string.Join(", ", result11.Value));
         }
     }
 }
