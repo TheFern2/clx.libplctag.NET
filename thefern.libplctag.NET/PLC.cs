@@ -31,95 +31,23 @@ namespace thefern.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBool = await ReadTag<BoolPlcMapper, bool>(tagName);
-                    if (resultsBool.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsBool.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<BoolPlcMapper, bool>(tagName);
                 case TagType.Bit:
-                    var resultsBit = await ReadTag<BoolPlcMapper, bool>(tagName);
-                    if (resultsBit.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsBit.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<BoolPlcMapper, bool>(tagName);
                 case TagType.Dint:
-                    var resultsDint = await ReadTag<DintPlcMapper, int>(tagName);
-                    if (resultsDint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsDint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<DintPlcMapper, int>(tagName);                 
                 case TagType.Int:
-                    var resultsInt = await ReadTag<IntPlcMapper, short>(tagName);
-                    if (resultsInt.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsInt.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<IntPlcMapper, short>(tagName);
                 case TagType.Sint:
-                    var resultsSint = await ReadTag<SintPlcMapper, sbyte>(tagName);
-                    if (resultsSint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsSint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<SintPlcMapper, sbyte>(tagName);
                 case TagType.Lint:
-                    var resultsLint = await ReadTag<LintPlcMapper, long>(tagName);
-                    if (resultsLint.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsLint.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<LintPlcMapper, long>(tagName);                    
                 case TagType.Real:
-                    var resultsReal = await ReadTag<RealPlcMapper, float>(tagName);
-                    if (resultsReal.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsReal.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                   return await _ReadTag<RealPlcMapper, float>(tagName);                    
                 case TagType.String:
-                    var resultsString = await ReadTag<StringPlcMapper, string>(tagName);
-                    if (resultsString.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsString.Value, "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "None", "Failure");
-                    }
-
+                    return await _ReadTag<StringPlcMapper, string>(tagName);
                 default:
-                    return new Response<string>(tagName, "None", "Wrong Type");
+                    return new Response<string>(tagName, "Wrong Type");
             }
         }
 
@@ -319,102 +247,65 @@ namespace thefern.libplctag.NET
             }
         }
 
+        private async Task<Response<string>> _ReadTag<M, T>(string tagName) where M : IPlcMapper<T>, new()
+        {
+            var results = await ReadTag<M, T>(tagName);
+            if (results.Status == "Success")
+            {
+                return new Response<string>(tagName, results.Value.ToString(), "Success");
+            }
+            else
+            {
+                return new Response<string>(tagName, "Failure");
+            }
+        }
+
+        /*private async Task<Response<string[]>> _ReadArray<M, T>(string tagName, int arrayLength, int startIndex = 0, int count = 0) where M : IPlcMapper<T>, new()
+        {
+            var results = await ReadTag<M, T>(tagName, new int[] { arrayLength });
+            if (results.Status == "Success")
+            {
+                string[] arrString = Array.ConvertAll<T, string>(results.Value, Convert.ToString);
+                // Sanity check to make sure we don't try to access items indices bigger than array
+                if (startIndex + count > arrayLength)
+                {
+                    return new Response<string[]>(tagName, "Failure, Out of bounds");
+                }
+
+                if (count > 0)
+                {
+                    List<T> tagValueList = new List<T>(arrString);
+                    return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
+                }
+
+                return new Response<string[]>(tagName, arrString, "Success");
+            }
+            else
+            {
+                return new Response<string[]>(tagName, "Failure");
+            }
+        }*/
+
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBool = await WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
-
-                    if (resultsBool.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsBool.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "Failure");
-                    }
-
-                // case TagType.Bit:
-                //     var resultsBit = await WriteBoolTag(tagName, value as bool?);
-
-                //     if (resultsBit.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsBit.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
-                // case TagType.Dint:
-                //     var resultsDint = await WriteDintTag(tagName, value as int?);
-                //     if (resultsDint.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsDint.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
-                // case TagType.Int:
-                //     var resultsInt = await WriteIntTag(tagName, value as short?);
-                //     if (resultsInt.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsInt.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
-                // case TagType.Sint:
-                //     var resultsSint = await WriteSintTag(tagName, value as sbyte?);
-                //     if (resultsSint.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsSint.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
-                // case TagType.Lint:
-                //     var resultsLint = await WriteLintTag(tagName, value as long?);
-                //     if (resultsLint.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsLint.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
-                // case TagType.Real:
-                //     var resultsReal = await WriteRealTag(tagName, value as float?);
-                //     if (resultsReal.Status == "Success")
-                //     {
-                //         return new Response<string>(tagName, resultsReal.Value.ToString(), "Success");
-                //     }
-                //     else
-                //     {
-                //         return new Response<string>(tagName, "None", "Failure");
-                //     }
-
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);                
+                 case TagType.Bit:
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
+                case TagType.Dint:
+                    return await _WriteTag<DintPlcMapper, int>(tagName, (int)value);
+                 case TagType.Int:
+                    return await _WriteTag<IntPlcMapper, short>(tagName, (short)value);
+                case TagType.Sint:
+                    return await _WriteTag<SintPlcMapper, sbyte>(tagName, (sbyte)value);
+                case TagType.Lint:
+                    return await _WriteTag<LintPlcMapper, long>(tagName, (long)value);
+                case TagType.Real:
+                    return await _WriteTag<RealPlcMapper, float>(tagName, (float)value);
                 case TagType.String:
-                    var resultsString = await WriteTag<StringPlcMapper, string>(tagName, (string)value);
-
-                    if (resultsString.Status == "Success")
-                    {
-                        return new Response<string>(tagName, resultsString.Value.ToString(), "Success");
-                    }
-                    else
-                    {
-                        return new Response<string>(tagName, "Failure");
-                    }
-
-                //return await WriteStringTag(tagName, value as string);
+                    return await _WriteTag<StringPlcMapper, string>(tagName, (string)value);
                 default:
                     return new Response<string>(tagName, "None", "Wrong Type");
             }
@@ -605,6 +496,20 @@ namespace thefern.libplctag.NET
                 default:
                     string[] emptyArrDefault = { };
                     return new Response<string[]>(tagName, emptyArrDefault, "Wrong Type");
+            }
+        }
+
+        private async Task<Response<string>> _WriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
+        {
+            var results = await WriteTag<M, T>(tagName, value);
+
+            if (results.Status == "Success")
+            {
+                return new Response<string>(tagName, results.Value.ToString(), "Success");
+            }
+            else
+            {
+                return new Response<string>(tagName, "Failure");
             }
         }
 

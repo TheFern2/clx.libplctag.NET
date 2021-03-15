@@ -146,6 +146,13 @@ namespace thefern.libplctag.NET.TestProgram
 
             var result11 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 0, 10);
             Console.WriteLine("[{0}]", string.Join(", ", result11.Value));
+
+            var result12 = await myPLC.WriteTag<DintPlcMapper, int>("BaseDINT", 545437492);
+            Console.WriteLine("[{0}]", string.Join(", ", result12));
+
+            var result13 = await myPLC.Write("BaseDINT", TagType.Dint, 545437493);
+            Console.WriteLine("[{0}]", string.Join(", ", result13));
+
         }
     }
 }

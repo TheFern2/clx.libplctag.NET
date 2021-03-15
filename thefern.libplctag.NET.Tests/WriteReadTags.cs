@@ -14,11 +14,29 @@ namespace thefern.libplctag.NET.Tests
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
             await myPLC.Write("BaseBOOL", TagType.Bool, false);
             var result = await myPLC.Read("BaseBOOL", TagType.Bool);
-            Assert.AreEqual(result.Value, "False");
+            Assert.AreEqual("False", result.Value);
 
             await myPLC.Write("BaseBOOL", TagType.Bool, true);
             var result2 = await myPLC.Read("BaseBOOL", TagType.Bool);
-            Assert.AreEqual(result2.Value, "True");
+            Assert.AreEqual("True", result2.Value);
+        }
+
+        [TestMethod]
+        public async Task TestBoolWithReadNull()
+        {
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
+            //await myPLC.Write("BaseBOOL", TagType.Bool, false);
+            var result = await myPLC.Read("BaseBOOLsdfsdf", TagType.Bool);
+            Assert.AreEqual(null, result.Value);            
+        }
+
+        [TestMethod]
+        public async Task TestBoolWithWriteNull()
+        {
+            var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
+            var result = await myPLC.Write("BaseBOOLsdfs", TagType.Bool, false);
+            //var result = await myPLC.Read("BaseBOOLsdfsdf", TagType.Bool);
+            Assert.AreEqual(null, result.Value);
         }
 
         [TestMethod]
@@ -150,11 +168,11 @@ namespace thefern.libplctag.NET.Tests
         public async Task TestRealWithReadTag()
         {
             var myPLC = new PLC(Configuration.ipAddress, Configuration.slot);
-            await myPLC.Write("BaseREAL", TagType.Real, 2);
+            await myPLC.Write("BaseREAL", TagType.Real, (float)5.0);
             var result = await myPLC.ReadTag<RealPlcMapper, float>("BaseREAL");
-            Assert.AreEqual(result.Value, 2);
+            Assert.AreEqual(result.Value, 5.0);
             Assert.IsInstanceOfType(result.Value, typeof(float));
-            await myPLC.Write("BaseREAL", TagType.Real, (float?)2.5);
+            await myPLC.Write("BaseREAL", TagType.Real, (float)2.5);
             var result2 = await myPLC.ReadTag<RealPlcMapper, float>("BaseREAL");
             Assert.AreEqual(result2.Value, 2.5);
             Assert.IsInstanceOfType(result2.Value, typeof(float));
