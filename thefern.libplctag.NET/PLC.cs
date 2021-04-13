@@ -35,15 +35,15 @@ namespace thefern.libplctag.NET
                 case TagType.Bit:
                     return await _ReadTag<BoolPlcMapper, bool>(tagName);
                 case TagType.Dint:
-                    return await _ReadTag<DintPlcMapper, int>(tagName);                 
+                    return await _ReadTag<DintPlcMapper, int>(tagName);
                 case TagType.Int:
                     return await _ReadTag<IntPlcMapper, short>(tagName);
                 case TagType.Sint:
                     return await _ReadTag<SintPlcMapper, sbyte>(tagName);
                 case TagType.Lint:
-                    return await _ReadTag<LintPlcMapper, long>(tagName);                    
+                    return await _ReadTag<LintPlcMapper, long>(tagName);
                 case TagType.Real:
-                   return await _ReadTag<RealPlcMapper, float>(tagName);                    
+                    return await _ReadTag<RealPlcMapper, float>(tagName);
                 case TagType.String:
                     return await _ReadTag<StringPlcMapper, string>(tagName);
                 default:
@@ -260,43 +260,17 @@ namespace thefern.libplctag.NET
             }
         }
 
-        /*private async Task<Response<string[]>> _ReadArray<M, T>(string tagName, int arrayLength, int startIndex = 0, int count = 0) where M : IPlcMapper<T>, new()
-        {
-            var results = await ReadTag<M, T>(tagName, new int[] { arrayLength });
-            if (results.Status == "Success")
-            {
-                string[] arrString = Array.ConvertAll<T, string>(results.Value, Convert.ToString);
-                // Sanity check to make sure we don't try to access items indices bigger than array
-                if (startIndex + count > arrayLength)
-                {
-                    return new Response<string[]>(tagName, "Failure, Out of bounds");
-                }
-
-                if (count > 0)
-                {
-                    List<T> tagValueList = new List<T>(arrString);
-                    return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(), "Success");
-                }
-
-                return new Response<string[]>(tagName, arrString, "Success");
-            }
-            else
-            {
-                return new Response<string[]>(tagName, "Failure");
-            }
-        }*/
-
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
             {
                 case TagType.Bool:
-                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);                
-                 case TagType.Bit:
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
+                case TagType.Bit:
                     return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
                 case TagType.Dint:
                     return await _WriteTag<DintPlcMapper, int>(tagName, (int)value);
-                 case TagType.Int:
+                case TagType.Int:
                     return await _WriteTag<IntPlcMapper, short>(tagName, (short)value);
                 case TagType.Sint:
                     return await _WriteTag<SintPlcMapper, sbyte>(tagName, (sbyte)value);
@@ -330,15 +304,14 @@ namespace thefern.libplctag.NET
                                 return new Response<string[]>(tagName, "Failure, Out of bounds");
                             }
 
-                            //string[] arrBool = Array.ConvertAll(readBoolArray.Value, Convert.ToBoolean);
                             List<bool> tagValueList = new List<bool>(readBoolArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
-                            var writeBoolArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
 
-                            if (writeBoolArrayRange.Status == "Success")
+                            if (writeArrayRange.Status == "Success")
                             {
-                                string[] arrString = Array.ConvertAll(writeBoolArrayRange.Value, Convert.ToString);
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
                                 return new Response<string[]>(tagName, arrString, "Success");
                             }
                             else
@@ -362,89 +335,281 @@ namespace thefern.libplctag.NET
                         return new Response<string[]>(tagName, "Failure");
                     }
 
-                // case TagType.Bit:
-                //     var resultsBitArray = await WriteBoolArray(tagName, value as bool[], arrayLength, startIndex, count);
+                case TagType.Bit:
+                    // read online array first
+                    var readBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
 
-                //     if (resultsBitArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readBitArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
 
-                // case TagType.Dint:
-                //     var resultsDintArray = await WriteDintArray(tagName, value as int[], arrayLength, startIndex, count);
+                            List<bool> tagValueList = new List<bool>(readBitArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
+                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
 
-                //     if (resultsDintArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
 
-                // case TagType.Int:
-                //     var resultsIntArray = await WriteIntArray(tagName, value as short[], arrayLength, startIndex, count);
+                        }
+                    }
 
-                //     if (resultsIntArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                    // Original code
+                    var resultsBitArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength });
 
-                // case TagType.Sint:
-                //     var resultsSintArray = await WriteSintArray(tagName, value as sbyte[], arrayLength, startIndex, count);
+                    if (resultsBitArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
 
-                //     if (resultsSintArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                case TagType.Dint:
+                    // read online array first
+                    var readDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength });
 
-                // case TagType.Lint:
-                //     var resultsLintArray = await WriteLintArray(tagName, value as long[], arrayLength, startIndex, count);
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readDintArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
 
-                //     if (resultsLintArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                            List<int> tagValueList = new List<int>(readDintArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<int>)value);
+                            var writeArrayRange = await WriteTag<DintPlcMapper, int[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
 
-                // case TagType.Real:
-                //     var resultsRealArray = await WriteRealArray(tagName, value as float[], arrayLength, startIndex, count);
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
 
-                //     if (resultsRealArray.Status == "Success")
-                //     {
-                //         string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
-                //         return new Response<string[]>(tagName, arrString, "Success");
-                //     }
-                //     else
-                //     {
-                //         string[] emptyArray = { };
-                //         return new Response<string[]>(tagName, emptyArray, "Failure");
-                //     }
+                        }
+                    }
+
+                    // Original code
+                    var resultsDintArray = await WriteTag<DintPlcMapper, int[]>(tagName, (int[])value, new int[] { arrayLength });
+
+                    if (resultsDintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
+
+                case TagType.Int:
+                    // read online array first
+                    var readIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readIntArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            List<short> tagValueList = new List<short>(readIntArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<short>)value);
+                            var writeArrayRange = await WriteTag<IntPlcMapper, short[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // Original code
+                    var resultsIntArray = await WriteTag<IntPlcMapper, short[]>(tagName, (short[])value, new int[] { arrayLength });
+
+                    if (resultsIntArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
+
+                case TagType.Sint:
+                    // read online array first
+                    var readSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readSintArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            List<sbyte> tagValueList = new List<sbyte>(readSintArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<sbyte>)value);
+                            var writeArrayRange = await WriteTag<SintPlcMapper, sbyte[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // Original code
+                    var resultsSintArray = await WriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[])value, new int[] { arrayLength });
+
+                    if (resultsSintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
+
+                case TagType.Lint:
+                    // read online array first
+                    var readLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readLintArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            List<long> tagValueList = new List<long>(readLintArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<long>)value);
+                            var writeArrayRange = await WriteTag<LintPlcMapper, long[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // Original code
+                    var resultsLintArray = await WriteTag<LintPlcMapper, long[]>(tagName, (long[])value, new int[] { arrayLength });
+
+                    if (resultsLintArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
+
+                case TagType.Real:
+                    // read online array first
+                    var readRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength });
+
+                    // ensure read is successful
+                    if (count > 0)
+                    {
+                        if (readRealArray.Status == "Success")
+                        {
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            }
+
+                            List<float> tagValueList = new List<float>(readRealArray.Value);
+                            tagValueList.RemoveRange(startIndex, count);
+                            tagValueList.InsertRange(startIndex, (IEnumerable<float>)value);
+                            var writeArrayRange = await WriteTag<RealPlcMapper, float[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            if (writeArrayRange.Status == "Success")
+                            {
+                                string[] arrString = Array.ConvertAll(writeArrayRange.Value, Convert.ToString);
+                                return new Response<string[]>(tagName, arrString, "Success");
+                            }
+                            else
+                            {
+                                return new Response<string[]>(tagName, "Failure");
+                            }
+
+                        }
+                    }
+
+                    // Original code
+                    var resultsRealArray = await WriteTag<RealPlcMapper, float[]>(tagName, (float[])value, new int[] { arrayLength });
+
+                    if (resultsRealArray.Status == "Success")
+                    {
+                        string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
+                        return new Response<string[]>(tagName, arrString, "Success");
+                    }
+                    else
+                    {
+                        string[] emptyArray = { };
+                        return new Response<string[]>(tagName, emptyArray, "Failure");
+                    }
 
                 case TagType.String:
                     // read online array first
@@ -460,7 +625,6 @@ namespace thefern.libplctag.NET
                                 return new Response<string[]>(tagName, "Failure, Out of bounds");
                             }
 
-                            //string[] arrBool = Array.ConvertAll(readBoolArray.Value, Convert.ToBoolean);
                             List<string> tagValueList = new List<string>(readStringArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<string>)value);
@@ -498,6 +662,40 @@ namespace thefern.libplctag.NET
                     return new Response<string[]>(tagName, emptyArrDefault, "Wrong Type");
             }
         }
+
+        // private async Task<Response<string[]>> _WriteArrayRange<M, T>(string tagName, object value, int arrayLength, int startIndex, int count = 0) where M : IPlcMapper<T>, new()
+        // {
+        //     var readStringArray = await ReadTag<M, T>(tagName, new int[] { arrayLength });
+
+        //     // ensure read is successful
+        //     if (count > 0)
+        //     {
+        //         if (readStringArray.Status == "Success")
+        //         {
+        //             if (startIndex + count > arrayLength)
+        //             {
+        //                 return new Response<string[]>(tagName, "Failure, Out of bounds");
+        //             }
+
+        //             List<T> tagValueList = new List<T>(readStringArray.Value); // Still unsure how to properly cast this
+        //             tagValueList.RemoveRange(startIndex, count);
+        //             tagValueList.InsertRange(startIndex, (IEnumerable<T>)value);
+        //             var writeBoolArrayRange = await WriteTag<StringPlcMapper, string[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+        //             if (writeBoolArrayRange.Status == "Success")
+        //             {
+        //                 string[] arrString = Array.ConvertAll(writeBoolArrayRange.Value, Convert.ToString);
+        //                 return new Response<string[]>(tagName, arrString, "Success");
+        //             }
+        //             else
+        //             {
+        //                 return new Response<string[]>(tagName, "Failure");
+        //             }
+
+        //         }
+        //     }
+        //     return new Response<string[]>(tagName, "Failure");
+        // }
 
         private async Task<Response<string>> _WriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
         {
