@@ -106,7 +106,7 @@ namespace thefern.libplctag.NET.TestProgram
 
             // var result1 = await myPLC.WriteBoolArray2D("SmallBOOLArray2D", result.Value, 32, 32);
             // Console.WriteLine(String.Join(", ", result1.Value.Cast<bool>()));
-            var result = await myPLC.ReadTag<BoolPlcMapper, bool>("BaseBOOL");
+            /*var result = await myPLC.ReadTag<BoolPlcMapper, bool>("BaseBOOL");
             Console.WriteLine("[{0}]", string.Join(", ", result));
 
             var result1 = await myPLC.ReadTag<BoolPlcMapper, bool>("BaseBOOLsdfsd");
@@ -151,8 +151,23 @@ namespace thefern.libplctag.NET.TestProgram
             Console.WriteLine("[{0}]", string.Join(", ", result12));
 
             var result13 = await myPLC.Write("BaseDINT", TagType.Dint, 545437493);
-            Console.WriteLine("[{0}]", string.Join(", ", result13));
+            Console.WriteLine("[{0}]", string.Join(", ", result13));*/
 
+            Dictionary<string, TagType> taglist = new Dictionary<string, TagType>();
+            taglist.Add("BaseBOOL", TagType.Bool);
+            taglist.Add("BaseDINT", TagType.Dint);
+            taglist.Add("BaseSTRING", TagType.String);
+            taglist.Add("BaseSINT", TagType.Sint);
+            taglist.Add("BaseLINT", TagType.Lint);
+            taglist.Add("BaseREAL", TagType.Real);
+
+            List<Response<string>> responseList = new List<Response<string>>();
+            responseList = await myPLC.ReadTags(taglist);
+
+            foreach (var item in responseList)
+            {
+                Console.WriteLine(item.ToString());
+            }
         }
     }
 }

@@ -260,6 +260,21 @@ namespace thefern.libplctag.NET
             }
         }
 
+        // Experimenting with reading a tag list
+        // Return a list of Response string objects
+        public async Task<List<Response<string>>> ReadTags(Dictionary<string, TagType> taglist)
+        {
+            List<Response<string>> responseList = new List<Response<string>>();
+            List<string> dicKeys = new List<string>(taglist.Keys);
+
+            foreach (var tagName in dicKeys)
+            {
+                responseList.Add(await Read(tagName, taglist[tagName]));
+            }
+
+            return responseList;
+        }
+
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
