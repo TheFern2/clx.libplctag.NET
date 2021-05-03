@@ -8,7 +8,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace thefern.libplctag.NET.TestProgram
+namespace clx.libplctag.NET.TestProgram
 {
     class AsyncTest
     {

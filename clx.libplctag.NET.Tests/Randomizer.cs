@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace thefern.libplctag.NET.Tests
+namespace clx.libplctag.NET.Tests
 {
     public static class Randomizer
     {

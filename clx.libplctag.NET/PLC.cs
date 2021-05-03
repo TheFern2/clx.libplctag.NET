@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace thefern.libplctag.NET
+namespace clx.libplctag.NET
 {
     public class PLC
     {

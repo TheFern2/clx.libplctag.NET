@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using libplctag;
 using libplctag.DataTypes;
 using libplctag.NativeImport;
-using thefern.libplctag.NET.Tests;
+using clx.libplctag.NET.Tests;
 
-namespace thefern.libplctag.NET.TestProgram
+namespace clx.libplctag.NET.TestProgram
 {
     class Program
     {
@@ -17,7 +17,7 @@ namespace thefern.libplctag.NET.TestProgram
              * This is just a playground for testing the library.
              */
 
-            var myPLC = new PLC("192.168.1.196", 2);
+            var myPLC = new PLC("192.168.1.3", 2);
             /*var result = await myPLC.Read("BaseBOOL", TagType.Bool).ConfigureAwait(false);
             Console.WriteLine(result);
 
@@ -153,13 +153,15 @@ namespace thefern.libplctag.NET.TestProgram
             var result13 = await myPLC.Write("BaseDINT", TagType.Dint, 545437493);
             Console.WriteLine("[{0}]", string.Join(", ", result13));*/
 
-            Dictionary<string, TagType> taglist = new Dictionary<string, TagType>();
-            taglist.Add("BaseBOOL", TagType.Bool);
-            taglist.Add("BaseDINT", TagType.Dint);
-            taglist.Add("BaseSTRING", TagType.String);
-            taglist.Add("BaseSINT", TagType.Sint);
-            taglist.Add("BaseLINT", TagType.Lint);
-            taglist.Add("BaseREAL", TagType.Real);
+            Dictionary<string, TagType> taglist = new Dictionary<string, TagType>
+            {
+                { "BaseBOOL", TagType.Bool },
+                { "BaseDINT", TagType.Dint },
+                { "BaseSTRING", TagType.String },
+                { "BaseSINT", TagType.Sint },
+                { "BaseLINT", TagType.Lint },
+                { "BaseREAL", TagType.Real }
+            };
 
             List<Response<string>> responseList = new List<Response<string>>();
             responseList = await myPLC.ReadTags(taglist);

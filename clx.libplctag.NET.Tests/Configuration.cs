@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace thefern.libplctag.NET.Tests
+namespace clx.libplctag.NET.Tests
 {
     public static class Configuration
     {

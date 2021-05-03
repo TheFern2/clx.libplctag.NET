@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace thefern.libplctag.NET.Tests
+namespace clx.libplctag.NET.Tests
 {
     [TestClass]
     public class RandomTests

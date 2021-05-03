@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace thefern.libplctag.NET
+namespace clx.libplctag.NET
 {
     public class BoolPlcMapper : IPlcMapper<bool>
     {

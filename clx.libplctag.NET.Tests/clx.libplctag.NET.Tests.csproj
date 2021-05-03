@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\thefern.libplctag.NET\thefern.libplctag.NET.csproj" />
+    <ProjectReference Include="..\clx.libplctag.NET\clx.libplctag.NET.csproj" />
   </ItemGroup>
 
 </Project>

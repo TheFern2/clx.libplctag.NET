@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thefern.libplctag.NET", "thefern.libplctag.NET\thefern.libplctag.NET.csproj", "{A31B8081-8A41-4560-84DC-40AC2E86D827}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "clx.libplctag.NET", "clx.libplctag.NET\clx.libplctag.NET.csproj", "{A31B8081-8A41-4560-84DC-40AC2E86D827}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thefern.libplctag.NET.Tests", "thefern.libplctag.NET.Tests\thefern.libplctag.NET.Tests.csproj", "{F0AD235F-6544-4B91-B0EE-3AD2FF98F549}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "clx.libplctag.NET.Tests", "clx.libplctag.NET.Tests\clx.libplctag.NET.Tests.csproj", "{F0AD235F-6544-4B91-B0EE-3AD2FF98F549}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thefern.libplctag.NET.TestProgram", "thefern.libplctag.NET.TestProgram\thefern.libplctag.NET.TestProgram.csproj", "{6DF5B2F2-9EA9-4871-B1DC-F43E780C6D83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "clx.libplctag.NET.TestProgram", "clx.libplctag.NET.TestProgram\clx.libplctag.NET.TestProgram.csproj", "{6DF5B2F2-9EA9-4871-B1DC-F43E780C6D83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

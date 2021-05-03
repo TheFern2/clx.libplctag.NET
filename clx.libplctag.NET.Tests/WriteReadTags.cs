@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace thefern.libplctag.NET.Tests
+namespace clx.libplctag.NET.Tests
 {
     [TestClass]
     public class WriteReadTags
