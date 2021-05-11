@@ -6,9 +6,9 @@ namespace clx.libplctag.NET
 {
     public class Response<T>
     {
-        public string TagName { get; }
-        public T Value { get; }
-        public string Status { get; }
+        public string TagName { get; set; }
+        public T Value { get; set; }
+        public string Status { get; set; }
 
         public Response(string tagName, T value, string status)
         {
@@ -22,6 +22,8 @@ namespace clx.libplctag.NET
             TagName = tagName;
             Status = status;
         }
+
+        public Response() { }
 
         public override string ToString()
         {
