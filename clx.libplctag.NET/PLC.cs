@@ -13,11 +13,15 @@ namespace clx.libplctag.NET
         private string _ipAddress = "192.168.1.196";
         private string _path = "1,0";
         public int Timeout { get; set; } = 5;
+        public Response<string> _response { get; set; }
+        public Response<string> _failure { get; set; }
 
         public PLC(string ipAddress, int slot)
         {
             _ipAddress = ipAddress;
             _path = "1," + slot.ToString();
+            _response = new Response<string>();
+            _failure = new Response<string>();
         }
 
         /// <summary>
@@ -252,11 +256,18 @@ namespace clx.libplctag.NET
             var results = await ReadTag<M, T>(tagName);
             if (results.Status == "Success")
             {
-                return new Response<string>(tagName, results.Value.ToString(), "Success");
+                // return new Response<string>(tagName, results.Value.ToString(), "Success");
+                _response.TagName = results.TagName;
+                _response.Value = results.Value.ToString();
+                _response.Status = results.Status;
+                return _response;
             }
             else
             {
-                return new Response<string>(tagName, "Failure");
+                // return new Response<string>(tagName, "Failure");
+                _failure.TagName = results.TagName;
+                _failure.Status = results.Status;
+                return _failure;
             }
         }
 

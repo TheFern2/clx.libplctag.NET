@@ -6,6 +6,7 @@ using libplctag;
 using libplctag.DataTypes;
 using libplctag.NativeImport;
 using clx.libplctag.NET.Tests;
+using System.Diagnostics;
 
 namespace clx.libplctag.NET.TestProgram
 {
@@ -17,7 +18,7 @@ namespace clx.libplctag.NET.TestProgram
              * This is just a playground for testing the library.
              */
 
-            var myPLC = new PLC("192.168.1.3", 2);
+            var myPLC = new PLC("192.168.1.196", 2);
             /*var result = await myPLC.Read("BaseBOOL", TagType.Bool).ConfigureAwait(false);
             Console.WriteLine(result);
 
@@ -153,7 +154,7 @@ namespace clx.libplctag.NET.TestProgram
             var result13 = await myPLC.Write("BaseDINT", TagType.Dint, 545437493);
             Console.WriteLine("[{0}]", string.Join(", ", result13));*/
 
-            Dictionary<string, TagType> taglist = new Dictionary<string, TagType>
+            /*Dictionary<string, TagType> taglist = new Dictionary<string, TagType>
             {
                 { "BaseBOOL", TagType.Bool },
                 { "BaseDINT", TagType.Dint },
@@ -169,7 +170,81 @@ namespace clx.libplctag.NET.TestProgram
             foreach (var item in responseList)
             {
                 Console.WriteLine(item.ToString());
+            }*/
+
+            /*List<Tag<DintPlcMapper, int>> myTags;
+            var numberOfTags = 1000;
+
+            for (int ii = 0; ii < numberOfTags; ii++)
+            {
+                myTags = Enumerable.Range(0, numberOfTags)
+                .Select(i => {
+                    var myTag = new Tag<DintPlcMapper, int>()
+                    {
+                        Name = $"YugeArray[{i}]",
+                        Gateway = "192.168.1.196",
+                        Path = "1,2",
+                        PlcType = PlcType.ControlLogix,
+                        Protocol = Protocol.ab_eip,
+                        Timeout = TimeSpan.FromMilliseconds(1000),
+                    };
+                    myTag.Initialize();
+                    return myTag;
+                })
+                .ToList();
+
+                int repetitions = 10;
+
+                // Create list of tasks
+                var taskList = new List<Task>();
+                for (int i = 0; i < numberOfTags; i++)
+                {
+                    var t = new Task(() =>
+                    {
+                        myTags[i].ReadAsync();
+                    });
+                }
+
+                Console.Write($"Running {repetitions} ReadAsync() calls...\n");
+                var asyncStopWatch = new Stopwatch();
+                asyncStopWatch.Start();
+                for (int jj = 0; jj < repetitions; jj++)
+                {            
+                    Task.WaitAll(taskList.ToArray());
+                   
+                }
+                *//*Console.WriteLine(myTags[4].Value);
+                Console.WriteLine(myTags[499].Value);*//*
+                asyncStopWatch.Stop();
+
+                Console.WriteLine(asyncStopWatch.Elapsed.Milliseconds);
+                Console.WriteLine($"\ttook {(float)asyncStopWatch.Elapsed.TotalMilliseconds / (float)repetitions}ms on average");
+            }*/
+
+            //AsyncTest.AsyncProfile(100, 1);
+            //AsyncTest.SyncAsyncComparison();
+
+            // create some tags
+            var numberOfTags = 10;
+            var listOfTags = new List<string>();
+            for (int i = 0; i < numberOfTags; i++)
+            {
+                Console.WriteLine($"Creating list of tags: YugeArray[{i}]");
             }
+
+            while (true)
+            {
+                for (int i = 0; i < listOfTags.Count; i++)
+                {
+                    /*var result2 = await myPLC.Read(listOfTags[i], TagType.Dint);
+                    Console.WriteLine(result2);*/
+                    //await Task.Delay(500);
+
+                    Console.WriteLine(listOfTags[i]);
+                }
+                //Console.WriteLine("Loop");
+            }
+
         }
     }
 }

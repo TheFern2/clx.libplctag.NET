@@ -37,6 +37,58 @@ namespace clx.libplctag.NET.TestProgram
             Console.WriteLine(myDint);
         }
 
+        public static async void AsyncProfile(int numberOfTags, int repetitions)
+        {
+            List<Tag<DintPlcMapper, int>> myTags;
+            //var numberOfTags = 1000;
+
+            for (int ii = 0; ii < numberOfTags; ii++)
+            {
+                myTags = Enumerable.Range(0, numberOfTags)
+                .Select(i => {
+                    var myTag = new Tag<DintPlcMapper, int>()
+                    {
+                        Name = $"YugeArray[{i}]",
+                        Gateway = "192.168.1.196",
+                        Path = "1,2",
+                        PlcType = PlcType.ControlLogix,
+                        Protocol = Protocol.ab_eip,
+                        Timeout = TimeSpan.FromMilliseconds(1000),
+                    };
+                    myTag.InitializeAsync();
+                    return myTag;
+                })
+                .ToList();
+
+                //int repetitions = 10;
+
+                // Create list of tasks
+                var taskList = new List<Task>();
+                for (int i = 0; i < numberOfTags; i++)
+                {
+                    var t = new Task(() =>
+                    {
+                        myTags[i].ReadAsync();                     
+                    });
+                    taskList.Add(t);
+                    //t.Start();
+                }
+
+                Console.Write($"Running {repetitions} ReadAsync() calls...\n");
+                var asyncStopWatch = Stopwatch.StartNew();
+
+                for (int jj = 0; jj < repetitions; jj++)
+                {            
+                    Task.WaitAll(taskList.ToArray());
+                   
+                }               
+                asyncStopWatch.Stop();
+
+                //Console.WriteLine(asyncStopWatch.Elapsed.Milliseconds);
+                Console.WriteLine($"\ttook {(float)asyncStopWatch.Elapsed.TotalMilliseconds / (float)repetitions}ms on average");
+            }
+        }
+
 
         public static async void SyncAsyncComparison()
         {
@@ -44,10 +96,11 @@ namespace clx.libplctag.NET.TestProgram
             Console.WriteLine("This method measures the speed of synchronous vs asynchronous reads");
 
             List<Tag<DintPlcMapper, int>> myTags;
+            int numberOfTags = 1000;
 
-            for (int ii = 0; ii < 10; ii++)
+            for (int ii = 0; ii < numberOfTags; ii++)
             {
-                myTags = Enumerable.Range(0, 10)
+                myTags = Enumerable.Range(0, numberOfTags)
                 .Select(i => {
                     var myTag = new Tag<DintPlcMapper, int>()
                     {
@@ -63,7 +116,7 @@ namespace clx.libplctag.NET.TestProgram
                 })
                 .ToList();
 
-                int repetitions = 100;
+                int repetitions = 100;                
 
                 Console.Write($"Running {repetitions} Read() calls...");
                 var syncStopWatch = Stopwatch.StartNew();
@@ -84,12 +137,23 @@ namespace clx.libplctag.NET.TestProgram
                 syncStopWatch.Stop();
                 Console.WriteLine($"\ttook {(float)syncStopWatch.ElapsedMilliseconds / (float)repetitions}ms on average");
 
+                // Create list of tasks
+                var taskList = new List<Task>();
+                for (int i = 0; i < numberOfTags; i++)
+                {
+                    var t = new Task(() =>
+                    {
+                        myTags[i].ReadAsync();
+                    });
+                    taskList.Add(t);
+                }
+
 
                 Console.Write($"Running {repetitions} ReadAsync() calls...");
                 var asyncStopWatch = Stopwatch.StartNew();
                 for (int jj = 0; jj < repetitions; jj++)
                 {
-                    Task.WaitAll(
+                    /*Task.WaitAll(
                         myTags[0].ReadAsync(),
                         myTags[1].ReadAsync(),
                         myTags[2].ReadAsync(),
@@ -100,8 +164,8 @@ namespace clx.libplctag.NET.TestProgram
                         myTags[7].ReadAsync(),
                         myTags[8].ReadAsync(),
                         myTags[9].ReadAsync()
-                        );
-                    //await myTag.ReadAsync();
+                        );*/
+                    Task.WaitAll(taskList.ToArray());
                 }
                 asyncStopWatch.Stop();
                 Console.WriteLine($"\ttook {(float)asyncStopWatch.ElapsedMilliseconds / (float)repetitions}ms on average");
