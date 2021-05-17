@@ -49,17 +49,18 @@ namespace clx.libplctag.NET.TestProgram
             var result8 = await myPLC.Read("BaseSTRING", TagType.String);
             Console.WriteLine(result8);
 
-            *//*var tagHandle = plctag.plc_tag_create("protocol=ab_eip&gateway=192.168.1.196&path=1,2&plc=LGX&elem_size=4&elem_count=4&debug=1&name=SmallDINTArray", 1000);
-            plctag.plc_tag_read(tagHandle, 1000);
-
-            var value = plctag.plc_tag_get_int32(tagHandle, 0);
-            Console.WriteLine(value);
-            // plctag.plc_tag_set_uint8(tagHandle, 0, 255);
-            plctag.plc_tag_set_int32(tagHandle, 0, 1);
-            plctag.plc_tag_write(tagHandle, 1000);
-            plctag.plc_tag_read(tagHandle, 1000);
-            var value2 = plctag.plc_tag_get_int32(tagHandle, 0);
-            Console.WriteLine(value2);*//*
+            */
+            /*var tagHandle = plctag.plc_tag_create("protocol=ab_eip&gateway=192.168.1.196&path=1,2&plc=LGX&elem_size=4&elem_count=4&debug=1&name=SmallDINTArray", 1000);
+                       plctag.plc_tag_read(tagHandle, 1000);
+           
+                       var value = plctag.plc_tag_get_int32(tagHandle, 0);
+                       Console.WriteLine(value);
+                       // plctag.plc_tag_set_uint8(tagHandle, 0, 255);
+                       plctag.plc_tag_set_int32(tagHandle, 0, 1);
+                       plctag.plc_tag_write(tagHandle, 1000);
+                       plctag.plc_tag_read(tagHandle, 1000);
+                       var value2 = plctag.plc_tag_get_int32(tagHandle, 0);
+                       Console.WriteLine(value2);*/ /*
 
             var result9 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128);
             Console.WriteLine("[{0}]", string.Join(", ", result9.Value));
@@ -213,8 +214,8 @@ namespace clx.libplctag.NET.TestProgram
                     Task.WaitAll(taskList.ToArray());
                    
                 }
-                *//*Console.WriteLine(myTags[4].Value);
-                Console.WriteLine(myTags[499].Value);*//*
+                */ /*Console.WriteLine(myTags[4].Value);
+                Console.WriteLine(myTags[499].Value);*/ /*
                 asyncStopWatch.Stop();
 
                 Console.WriteLine(asyncStopWatch.Elapsed.Milliseconds);
@@ -225,26 +226,31 @@ namespace clx.libplctag.NET.TestProgram
             //AsyncTest.SyncAsyncComparison();
 
             // create some tags
-            var numberOfTags = 10;
+            var numberOfTags = 300;
             var listOfTags = new List<string>();
             for (int i = 0; i < numberOfTags; i++)
             {
                 Console.WriteLine($"Creating list of tags: YugeArray[{i}]");
             }
 
+            var result = new Response<string>();
+            var responses = new List<Response<string>>();
             while (true)
             {
-                for (int i = 0; i < listOfTags.Count; i++)
+                /*result = await myPLC.Read("BaseDINT", TagType.Dint);
+                Console.WriteLine(result);*/
+                responses.Clear();
+                
+
+                Console.WriteLine(result);
+                for (int i = 0; i < numberOfTags; i++)
                 {
-                    /*var result2 = await myPLC.Read(listOfTags[i], TagType.Dint);
-                    Console.WriteLine(result2);*/
-                    //await Task.Delay(500);
-
-                    Console.WriteLine(listOfTags[i]);
+                    result = await myPLC.Read($"YugeArray[{i}]", TagType.Dint);
+                    responses.Add(result);
+                    Console.WriteLine(result);
                 }
-                //Console.WriteLine("Loop");
+                await Task.Delay(500);
             }
-
         }
     }
 }
