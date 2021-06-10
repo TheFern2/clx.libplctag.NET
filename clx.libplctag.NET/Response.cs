@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace clx.libplctag.NET
+﻿namespace clx.libplctag.NET
 {
     public class Response<T>
     {

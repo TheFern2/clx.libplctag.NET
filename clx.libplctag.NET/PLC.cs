@@ -10,22 +10,22 @@ namespace clx.libplctag.NET
 {
     public class PLC
     {
-        private string _ipAddress = "192.168.1.196";
-        private string _path = "1,0";
+        private readonly string _ipAddress = "192.168.1.196";
+        private readonly string _path = "1,0";
         public int Timeout { get; set; } = 5;
-        public Response<string> _response { get; set; }
-        public Response<string> _failure { get; set; }
+        // public Response<string> _response { get; set; }
+        // public Response<string> _failure { get; set; }
 
         public PLC(string ipAddress, int slot)
         {
             _ipAddress = ipAddress;
             _path = "1," + slot.ToString();
-            _response = new Response<string>();
-            _failure = new Response<string>();
+            // _response = new Response<string>();
+            // _failure = new Response<string>();
         }
 
         /// <summary>
-        /// Reads a tag from the PLC. 
+        /// Reads a tag from the PLC.
         /// </summary>
         /// <param name="tagName">Tag name either a controller or program scoped tag</param>
         /// <param name="tagType">Tag type use TagType enum</param>
@@ -56,7 +56,7 @@ namespace clx.libplctag.NET
         }
 
         /// <summary>
-        /// Reads an array from the PLC. 
+        /// Reads an array from the PLC.
         /// </summary>
         /// <param name="tagName">Tag name either a controller or program scoped tag</param>
         /// <param name="tagType">Tag type use TagType enum</param>
@@ -67,7 +67,7 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    var resultsBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsBoolArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsBoolArray.Value, Convert.ToString);
@@ -91,7 +91,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Bit:
-                    var resultsBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    var resultsBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsBitArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
@@ -114,7 +114,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Dint:
-                    var resultsDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength });
+                    var resultsDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsDintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
@@ -137,7 +137,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Int:
-                    var resultsIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength });
+                    var resultsIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsIntArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
@@ -159,7 +159,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Sint:
-                    var resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength });
+                    var resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsSintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
@@ -181,7 +181,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Lint:
-                    var resultsLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength });
+                    var resultsLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsLintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
@@ -203,7 +203,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Real:
-                    var resultsRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength });
+                    var resultsRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsRealArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
@@ -225,7 +225,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.String:
-                    var resultsStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength });
+                    var resultsStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsStringArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsStringArray.Value, Convert.ToString);
@@ -253,21 +253,21 @@ namespace clx.libplctag.NET
 
         private async Task<Response<string>> _ReadTag<M, T>(string tagName) where M : IPlcMapper<T>, new()
         {
-            var results = await ReadTag<M, T>(tagName);
+            var results = await ReadTag<M, T>(tagName).ConfigureAwait(false);
             if (results.Status == "Success")
             {
-                // return new Response<string>(tagName, results.Value.ToString(), "Success");
-                _response.TagName = results.TagName;
-                _response.Value = results.Value.ToString();
-                _response.Status = results.Status;
-                return _response;
+                return new Response<string>(tagName, results.Value.ToString(), "Success");
+                // _response.TagName = results.TagName;
+                // _response.Value = results.Value.ToString();
+                // _response.Status = results.Status;
+                // return _response;
             }
             else
             {
-                // return new Response<string>(tagName, "Failure");
-                _failure.TagName = results.TagName;
-                _failure.Status = results.Status;
-                return _failure;
+                return new Response<string>(tagName, "Failure");
+                // _failure.TagName = results.TagName;
+                // _failure.Status = results.Status;
+                // return _failure;
             }
         }
 
@@ -280,7 +280,7 @@ namespace clx.libplctag.NET
 
             foreach (var tagName in dicKeys)
             {
-                responseList.Add(await Read(tagName, taglist[tagName]));
+                responseList.Add(await Read(tagName, taglist[tagName]).ConfigureAwait(false));
             }
 
             return responseList;
@@ -291,21 +291,21 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value).ConfigureAwait(false);
                 case TagType.Bit:
-                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value);
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool)value).ConfigureAwait(false);
                 case TagType.Dint:
-                    return await _WriteTag<DintPlcMapper, int>(tagName, (int)value);
+                    return await _WriteTag<DintPlcMapper, int>(tagName, (int)value).ConfigureAwait(false);
                 case TagType.Int:
-                    return await _WriteTag<IntPlcMapper, short>(tagName, (short)value);
+                    return await _WriteTag<IntPlcMapper, short>(tagName, (short)value).ConfigureAwait(false);
                 case TagType.Sint:
-                    return await _WriteTag<SintPlcMapper, sbyte>(tagName, (sbyte)value);
+                    return await _WriteTag<SintPlcMapper, sbyte>(tagName, (sbyte)value).ConfigureAwait(false);
                 case TagType.Lint:
-                    return await _WriteTag<LintPlcMapper, long>(tagName, (long)value);
+                    return await _WriteTag<LintPlcMapper, long>(tagName, (long)value).ConfigureAwait(false);
                 case TagType.Real:
-                    return await _WriteTag<RealPlcMapper, float>(tagName, (float)value);
+                    return await _WriteTag<RealPlcMapper, float>(tagName, (float)value).ConfigureAwait(false);
                 case TagType.String:
-                    return await _WriteTag<StringPlcMapper, string>(tagName, (string)value);
+                    return await _WriteTag<StringPlcMapper, string>(tagName, (string)value).ConfigureAwait(false);
                 default:
                     return new Response<string>(tagName, "None", "Wrong Type");
             }
@@ -318,7 +318,7 @@ namespace clx.libplctag.NET
                 case TagType.Bool:
 
                     // read online array first
-                    var readBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    var readBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -333,7 +333,8 @@ namespace clx.libplctag.NET
                             List<bool> tagValueList = new List<bool>(readBoolArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
-                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+
+                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -349,7 +350,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsBoolArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength });
+                    var resultsBoolArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsBoolArray.Status == "Success")
                     {
@@ -363,7 +364,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Bit:
                     // read online array first
-                    var readBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength });
+                    var readBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -378,7 +379,7 @@ namespace clx.libplctag.NET
                             List<bool> tagValueList = new List<bool>(readBitArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
-                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -394,7 +395,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsBitArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength });
+                    var resultsBitArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsBitArray.Status == "Success")
                     {
@@ -409,7 +410,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Dint:
                     // read online array first
-                    var readDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength });
+                    var readDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -424,7 +425,7 @@ namespace clx.libplctag.NET
                             List<int> tagValueList = new List<int>(readDintArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<int>)value);
-                            var writeArrayRange = await WriteTag<DintPlcMapper, int[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<DintPlcMapper, int[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -440,7 +441,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsDintArray = await WriteTag<DintPlcMapper, int[]>(tagName, (int[])value, new int[] { arrayLength });
+                    var resultsDintArray = await WriteTag<DintPlcMapper, int[]>(tagName, (int[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsDintArray.Status == "Success")
                     {
@@ -455,7 +456,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Int:
                     // read online array first
-                    var readIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength });
+                    var readIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -470,7 +471,7 @@ namespace clx.libplctag.NET
                             List<short> tagValueList = new List<short>(readIntArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<short>)value);
-                            var writeArrayRange = await WriteTag<IntPlcMapper, short[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<IntPlcMapper, short[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -486,7 +487,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsIntArray = await WriteTag<IntPlcMapper, short[]>(tagName, (short[])value, new int[] { arrayLength });
+                    var resultsIntArray = await WriteTag<IntPlcMapper, short[]>(tagName, (short[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsIntArray.Status == "Success")
                     {
@@ -501,7 +502,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Sint:
                     // read online array first
-                    var readSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength });
+                    var readSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -516,7 +517,7 @@ namespace clx.libplctag.NET
                             List<sbyte> tagValueList = new List<sbyte>(readSintArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<sbyte>)value);
-                            var writeArrayRange = await WriteTag<SintPlcMapper, sbyte[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<SintPlcMapper, sbyte[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -532,7 +533,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsSintArray = await WriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[])value, new int[] { arrayLength });
+                    var resultsSintArray = await WriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsSintArray.Status == "Success")
                     {
@@ -547,7 +548,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Lint:
                     // read online array first
-                    var readLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength });
+                    var readLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -562,7 +563,7 @@ namespace clx.libplctag.NET
                             List<long> tagValueList = new List<long>(readLintArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<long>)value);
-                            var writeArrayRange = await WriteTag<LintPlcMapper, long[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<LintPlcMapper, long[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -578,7 +579,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsLintArray = await WriteTag<LintPlcMapper, long[]>(tagName, (long[])value, new int[] { arrayLength });
+                    var resultsLintArray = await WriteTag<LintPlcMapper, long[]>(tagName, (long[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsLintArray.Status == "Success")
                     {
@@ -593,7 +594,7 @@ namespace clx.libplctag.NET
 
                 case TagType.Real:
                     // read online array first
-                    var readRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength });
+                    var readRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
@@ -608,7 +609,7 @@ namespace clx.libplctag.NET
                             List<float> tagValueList = new List<float>(readRealArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<float>)value);
-                            var writeArrayRange = await WriteTag<RealPlcMapper, float[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeArrayRange = await WriteTag<RealPlcMapper, float[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -624,7 +625,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsRealArray = await WriteTag<RealPlcMapper, float[]>(tagName, (float[])value, new int[] { arrayLength });
+                    var resultsRealArray = await WriteTag<RealPlcMapper, float[]>(tagName, (float[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsRealArray.Status == "Success")
                     {
@@ -654,7 +655,7 @@ namespace clx.libplctag.NET
                             List<string> tagValueList = new List<string>(readStringArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<string>)value);
-                            var writeBoolArrayRange = await WriteTag<StringPlcMapper, string[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength });
+                            var writeBoolArrayRange = await WriteTag<StringPlcMapper, string[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeBoolArrayRange.Status == "Success")
                             {
@@ -670,7 +671,7 @@ namespace clx.libplctag.NET
                     }
 
                     // original code
-                    var resultsStringArray = await WriteTag<StringPlcMapper, string[]>(tagName, value as string[], new int[] { arrayLength });
+                    var resultsStringArray = await WriteTag<StringPlcMapper, string[]>(tagName, value as string[], new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsStringArray.Status == "Success")
                     {
@@ -725,7 +726,7 @@ namespace clx.libplctag.NET
 
         private async Task<Response<string>> _WriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
         {
-            var results = await WriteTag<M, T>(tagName, value);
+            var results = await WriteTag<M, T>(tagName, value).ConfigureAwait(false);
 
             if (results.Status == "Success")
             {
@@ -752,14 +753,14 @@ namespace clx.libplctag.NET
 
             try
             {
-                await tag.InitializeAsync();
-                await tag.ReadAsync();
+                await tag.InitializeAsync().ConfigureAwait(false);
+                await tag.ReadAsync().ConfigureAwait(false);
                 var tagValue = tag.Value;
                 tag.Dispose();
 
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return new Response<T>(tagName, "Failure");
             }
@@ -800,14 +801,14 @@ namespace clx.libplctag.NET
 
             try
             {
-                await tag.InitializeAsync();
-                await tag.ReadAsync();
+                await tag.InitializeAsync().ConfigureAwait(false);
+                await tag.ReadAsync().ConfigureAwait(false);
                 var tagValue = tag.Value;
                 tag.Dispose();
 
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return new Response<T>(tagName, "Failure");
             }
@@ -828,10 +829,10 @@ namespace clx.libplctag.NET
 
             try
             {
-                await tag.InitializeAsync();
+                await tag.InitializeAsync().ConfigureAwait(false);
                 tag.Value = value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
+                await tag.WriteAsync().ConfigureAwait(false);
+                await tag.ReadAsync().ConfigureAwait(false);
                 var tagValue = tag.Value;
                 tag.Dispose();
                 return new Response<T>(tagName, tagValue, "Success");
@@ -877,31 +878,19 @@ namespace clx.libplctag.NET
 
             try
             {
-                await tag.InitializeAsync();
+                await tag.InitializeAsync().ConfigureAwait(false);
                 tag.Value = value;
-                await tag.WriteAsync();
-                await tag.ReadAsync();
+                await tag.WriteAsync().ConfigureAwait(false);
+                await tag.ReadAsync().ConfigureAwait(false);
                 var tagValue = tag.Value;
                 tag.Dispose();
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return new Response<T>(tagName, "Write Failure");
             }
         }
 
-    }
-
-    public enum TagType
-    {
-        Bool,
-        Bit,
-        Dint,
-        Int,
-        Sint,
-        Lint,
-        Real,
-        String
     }
 }
