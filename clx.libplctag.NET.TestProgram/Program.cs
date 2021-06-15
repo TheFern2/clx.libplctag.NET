@@ -226,7 +226,7 @@ namespace clx.libplctag.NET.TestProgram
             //AsyncTest.SyncAsyncComparison();
 
             // create some tags
-            var numberOfTags = 300;
+            /*var numberOfTags = 300;
             var listOfTags = new List<string>();
             for (int i = 0; i < numberOfTags; i++)
             {
@@ -238,7 +238,7 @@ namespace clx.libplctag.NET.TestProgram
             while (true)
             {
                 /*result = await myPLC.Read("BaseDINT", TagType.Dint);
-                Console.WriteLine(result);*/
+                Console.WriteLine(result);#1#
                 responses.Clear();
                 
 
@@ -250,7 +250,10 @@ namespace clx.libplctag.NET.TestProgram
                     Console.WriteLine(result);
                 }
                 await Task.Delay(500);
-            }
+            }*/
+            
+            var result2 = await myPLC.Read("BaseDINTArray[4]", TagType.Dint);
+            Console.WriteLine("[{0}]", string.Join(", ", result2));
         }
     }
 }

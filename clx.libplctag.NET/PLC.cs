@@ -67,7 +67,7 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    var resultsBoolArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsBoolArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsBoolArray.Value, Convert.ToString);
@@ -91,7 +91,7 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Bit:
-                    var resultsBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    var resultsBitArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
                     if (resultsBitArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
@@ -257,17 +257,10 @@ namespace clx.libplctag.NET
             if (results.Status == "Success")
             {
                 return new Response<string>(tagName, results.Value.ToString(), "Success");
-                // _response.TagName = results.TagName;
-                // _response.Value = results.Value.ToString();
-                // _response.Status = results.Status;
-                // return _response;
             }
             else
             {
                 return new Response<string>(tagName, "Failure");
-                // _failure.TagName = results.TagName;
-                // _failure.Status = results.Status;
-                // return _failure;
             }
         }
 
@@ -317,12 +310,12 @@ namespace clx.libplctag.NET
             {
                 case TagType.Bool:
 
-                    // read online array first
-                    var readBoolArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
-
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readBoolArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readBoolArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -334,7 +327,7 @@ namespace clx.libplctag.NET
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
 
-                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
+                            var writeArrayRange = await WriteTag<BoolPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -350,7 +343,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsBoolArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
+                    var resultsBoolArray = await WriteTag<BoolPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsBoolArray.Status == "Success")
                     {
@@ -363,12 +356,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Bit:
-                    // read online array first
-                    var readBitArray = await ReadTag<BoolArrayPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
-
+                    
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readBitArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readBitArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -379,7 +373,7 @@ namespace clx.libplctag.NET
                             List<bool> tagValueList = new List<bool>(readBitArray.Value);
                             tagValueList.RemoveRange(startIndex, count);
                             tagValueList.InsertRange(startIndex, (IEnumerable<bool>)value);
-                            var writeArrayRange = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
+                            var writeArrayRange = await WriteTag<BoolPlcMapper, bool[]>(tagName, tagValueList.ToArray(), new int[] { arrayLength }).ConfigureAwait(false);
 
                             if (writeArrayRange.Status == "Success")
                             {
@@ -395,7 +389,7 @@ namespace clx.libplctag.NET
                     }
 
                     // Original code
-                    var resultsBitArray = await WriteTag<BoolArrayPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
+                    var resultsBitArray = await WriteTag<BoolPlcMapper, bool[]>(tagName, (bool[])value, new int[] { arrayLength }).ConfigureAwait(false);
 
                     if (resultsBitArray.Status == "Success")
                     {
@@ -409,12 +403,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Dint:
-                    // read online array first
-                    var readDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readDintArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -455,12 +450,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Int:
-                    // read online array first
-                    var readIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readIntArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -501,12 +497,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Sint:
-                    // read online array first
-                    var readSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readSintArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -547,12 +544,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Lint:
-                    // read online array first
-                    var readLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readLintArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -593,12 +591,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Real:
-                    // read online array first
-                    var readRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
 
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                        
                         if (readRealArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -639,12 +638,13 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.String:
-                    // read online array first
-                    var readStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength });
-
+                    
                     // ensure read is successful
                     if (count > 0)
                     {
+                        // read online array first
+                        var readStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength });
+
                         if (readStringArray.Status == "Success")
                         {
                             if (startIndex + count > arrayLength)
@@ -760,8 +760,9 @@ namespace clx.libplctag.NET
 
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 return new Response<T>(tagName, "Failure");
             }
         }

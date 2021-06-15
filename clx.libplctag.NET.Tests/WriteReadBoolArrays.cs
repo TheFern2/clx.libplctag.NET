@@ -34,7 +34,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, alist.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.ReadTag<BoolArrayPlcMapper, bool[]>("BaseBOOLArray", new int[] { 128 });
+            var result2 = await myPLC.ReadTag<BoolPlcMapper, bool[]>("BaseBOOLArray", new int[] { 128 });
             Assert.IsTrue(result2.Value.SequenceEqual(alist.ToArray()));
         }
 
