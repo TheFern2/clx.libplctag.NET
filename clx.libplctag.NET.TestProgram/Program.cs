@@ -289,6 +289,10 @@ namespace clx.libplctag.NET.TestProgram
             Console.WriteLine(myTag.GetStatus());
             var someData = myTag.GetInt32(8);
 
+            var someInt = 1951726900;
+            myTag.SetInt32(8, someInt);
+            await myTag.WriteAsync(token);
+
             Console.WriteLine(someData);
         }
     }
