@@ -7,6 +7,7 @@ using libplctag.DataTypes;
 using libplctag.NativeImport;
 using clx.libplctag.NET.Tests;
 using System.Diagnostics;
+using System.Threading;
 
 namespace clx.libplctag.NET.TestProgram
 {
@@ -252,8 +253,43 @@ namespace clx.libplctag.NET.TestProgram
                 await Task.Delay(500);
             }*/
             
-            var result2 = await myPLC.Read("BaseDINTArray[4]", TagType.Dint);
-            Console.WriteLine("[{0}]", string.Join(", ", result2));
+            /*var result2 = await myPLC.Write("BaseBOOL", TagType.Bool, false);
+            Console.WriteLine("[{0}]", string.Join(", ", result2));*/
+
+            /*var myTag = new Tag<DintPlcMapper, int>()
+            {
+                Name = "BaseDINT",
+                Gateway = "192.168.1.196",
+                Path = "1,0",
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(5)
+            };*/
+            
+            // Define the cancellation token.
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+
+            var myTag = new Tag();
+            myTag.Name = "BaseDINTArray";
+            myTag.Gateway = "192.168.1.196";
+            myTag.Path = "1,2";
+            myTag.PlcType = PlcType.ControlLogix;
+            myTag.Protocol = Protocol.ab_eip;
+            myTag.Timeout = TimeSpan.FromSeconds(5);
+            myTag.ElementCount = 128;
+            myTag.ElementSize = 4;
+            
+            Console.WriteLine(myTag.IsInitialized);
+            await myTag.InitializeAsync(token);
+            Console.WriteLine(myTag.IsInitialized);
+            await myTag.ReadAsync(token);
+            Console.WriteLine(myTag.GetSize());
+            Console.WriteLine(myTag.GetStatus());
+            var someData = myTag.GetInt32(8);
+
+            Console.WriteLine(someData);
         }
     }
 }
