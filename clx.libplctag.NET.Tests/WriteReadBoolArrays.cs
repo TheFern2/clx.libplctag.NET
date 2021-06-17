@@ -79,7 +79,7 @@ namespace clx.libplctag.NET.Tests
             var updateValues = new List<bool>(Randomizer.GenRandBoolList(10));
 
             var result = await myPLC.Write("BaseBOOLArray[119]", TagType.Bool, updateValues.ToArray(), 128);
-            Assert.AreEqual("Failure, Out of bounds", result.Status);
+            Assert.AreEqual("MismatchLength", result.Status);
 
         }
 

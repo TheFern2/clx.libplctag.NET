@@ -680,7 +680,7 @@ namespace clx.libplctag.NET
             tag.PlcType = PlcType.ControlLogix;
             tag.Protocol = Protocol.ab_eip;
             tag.Timeout = TimeSpan.FromSeconds(Timeout);
-            tag.ElementCount = arrayLength;
+            tag.ElementCount = arrayLength / 32;
 
             // sanity check
             if (startIndex + value.Length > arrayLength)

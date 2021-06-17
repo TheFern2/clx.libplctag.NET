@@ -295,8 +295,8 @@ namespace clx.libplctag.NET.TestProgram
 
             //Console.WriteLine(someData);
             
-            var alist = new List<bool>(Randomizer.GenRandBoolList(32));
-            var result = await myPLC.Write("BaseBOOLArray[31]", TagType.Bool,alist.ToArray(), 32);
+            var alist = new List<bool>(Randomizer.GenRandBoolList(5));
+            var result = await myPLC.Write("BaseBOOLArray[124]", TagType.Bool,alist.ToArray(), 128);
             //var result = await myPLC.WriteIntArrayRange("BaseINTArray",alist.ToArray(), 128, 123,5);
             Console.WriteLine("[{0}]", string.Join(", ", result));
         }
