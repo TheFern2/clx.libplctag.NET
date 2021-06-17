@@ -267,19 +267,19 @@ namespace clx.libplctag.NET.TestProgram
             };*/
             
             // Define the cancellation token.
-            CancellationTokenSource source = new CancellationTokenSource();
+            /*CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
 
             var myTag = new Tag();
-            myTag.Name = "BaseDINTArray";
+            myTag.Name = "BaseBOOLArray";
             myTag.Gateway = "192.168.1.196";
             myTag.Path = "1,2";
             myTag.PlcType = PlcType.ControlLogix;
             myTag.Protocol = Protocol.ab_eip;
             myTag.Timeout = TimeSpan.FromSeconds(5);
-            myTag.ElementCount = 128;
-            myTag.ElementSize = 4;
+            //myTag.ElementCount = 128;
+            //myTag.ElementSize = 1;
             
             Console.WriteLine(myTag.IsInitialized);
             await myTag.InitializeAsync(token);
@@ -287,13 +287,18 @@ namespace clx.libplctag.NET.TestProgram
             await myTag.ReadAsync(token);
             Console.WriteLine(myTag.GetSize());
             Console.WriteLine(myTag.GetStatus());
-            var someData = myTag.GetInt32(8);
+            var someData = myTag.GetBit(0);*/
 
-            var someInt = 1951726900;
+            /*var someInt = 1951726900;
             myTag.SetInt32(8, someInt);
-            await myTag.WriteAsync(token);
+            await myTag.WriteAsync(token);*/
 
-            Console.WriteLine(someData);
+            //Console.WriteLine(someData);
+            
+            var alist = new List<bool>(Randomizer.GenRandBoolList(32));
+            var result = await myPLC.Write("BaseBOOLArray[31]", TagType.Bool,alist.ToArray(), 32);
+            //var result = await myPLC.WriteIntArrayRange("BaseINTArray",alist.ToArray(), 128, 123,5);
+            Console.WriteLine("[{0}]", string.Join(", ", result));
         }
     }
 }

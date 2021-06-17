@@ -46,7 +46,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseBOOLArray", TagType.Bool, alist.ToArray(), 128);
             var updateValues = new List<bool>(Randomizer.GenRandBoolList(10));
 
-            var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, updateValues.ToArray(), 128, 0, 10);
+            var result = await myPLC.Write("BaseBOOLArray[0]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 0, 10);
@@ -62,7 +62,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseBOOLArray", TagType.Bool, alist.ToArray(), 128);
             var updateValues = new List<bool>(Randomizer.GenRandBoolList(10));
 
-            var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, updateValues.ToArray(), 128, 10, 10);
+            var result = await myPLC.Write("BaseBOOLArray[10]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 10, 10);
@@ -78,7 +78,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseBOOLArray", TagType.Bool, alist.ToArray(), 128);
             var updateValues = new List<bool>(Randomizer.GenRandBoolList(10));
 
-            var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, updateValues.ToArray(), 128, 119, 10);
+            var result = await myPLC.Write("BaseBOOLArray[119]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Failure, Out of bounds", result.Status);
 
         }
@@ -91,7 +91,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseBOOLArray", TagType.Bool, alist.ToArray(), 128);
             var updateValues = new List<bool>(Randomizer.GenRandBoolList(10));
 
-            var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, updateValues.ToArray(), 128, 118, 10);
+            var result = await myPLC.Write("BaseBOOLArray[118]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 118, 10);

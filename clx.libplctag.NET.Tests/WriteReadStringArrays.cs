@@ -46,7 +46,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 0, 10);
+            var result = await myPLC.Write("BaseSTRINGArray[0]", TagType.String, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 0, 10);
@@ -61,7 +61,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 10, 10);
+            var result = await myPLC.Write("BaseSTRINGArray[10]", TagType.String, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 10, 10);
@@ -76,7 +76,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 119, 10);
+            var result = await myPLC.Write("BaseSTRINGArray[119]", TagType.String, updateValues.ToArray(), 128);
             Assert.AreEqual("Failure, Out of bounds", result.Status);
 
         }
@@ -89,7 +89,7 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSTRINGArray", TagType.String, alist.ToArray(), 128);
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
-            var result = await myPLC.Write("BaseSTRINGArray", TagType.String, updateValues.ToArray(), 128, 118, 10);
+            var result = await myPLC.Write("BaseSTRINGArray[118]", TagType.String, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
             var result2 = await myPLC.Read("BaseSTRINGArray", TagType.String, 128, 118, 10);
