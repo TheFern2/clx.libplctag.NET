@@ -7,6 +7,8 @@ using libplctag.DataTypes;
 using libplctag.NativeImport;
 using clx.libplctag.NET.Tests;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace clx.libplctag.NET.TestProgram
@@ -267,18 +269,18 @@ namespace clx.libplctag.NET.TestProgram
             };*/
             
             // Define the cancellation token.
-            /*CancellationTokenSource source = new CancellationTokenSource();
+            CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
 
             var myTag = new Tag();
-            myTag.Name = "BaseBOOLArray";
+            myTag.Name = "BaseSTRINGArray";
             myTag.Gateway = "192.168.1.196";
             myTag.Path = "1,2";
             myTag.PlcType = PlcType.ControlLogix;
             myTag.Protocol = Protocol.ab_eip;
             myTag.Timeout = TimeSpan.FromSeconds(5);
-            //myTag.ElementCount = 128;
+            myTag.ElementCount = 128;
             //myTag.ElementSize = 1;
             
             Console.WriteLine(myTag.IsInitialized);
@@ -287,18 +289,52 @@ namespace clx.libplctag.NET.TestProgram
             await myTag.ReadAsync(token);
             Console.WriteLine(myTag.GetSize());
             Console.WriteLine(myTag.GetStatus());
-            var someData = myTag.GetBit(0);*/
+            // one string index read
+            /*var index = 6;
+            var stringLength = myTag.GetInt32(88);
+            var actualStringLength = Math.Min(stringLength, 88);
+            var asciiEncodedString = new byte[actualStringLength];
+            var STRING_LENGTH_HEADER = 4;
+            
+            for (int ii = 0; ii < actualStringLength; ii++)
+            {
+                asciiEncodedString[ii] = myTag.GetUInt8(88 * index + STRING_LENGTH_HEADER + ii);
+            }
+
+            Console.WriteLine(Encoding.ASCII.GetString(asciiEncodedString));*/
+
+            // working write one array string tag
+            /*var MAX_CONTROLLOGIX_STRING_LENGTH = 88;
+            var LEN_OFFSET = 0;
+            var DATA_OFFSET = 4;
+            var myString = "thisisanotheroneofmystrings";
+            var offset = 88 * 127;
+            int apparentStringLength = myTag.GetInt32(offset);
+            //var actualStringLength = Math.Min(apparentStringLength, MAX_CONTROLLOGIX_STRING_LENGTH);
+            var actualStringLength = Math.Min(myString.Length, MAX_CONTROLLOGIX_STRING_LENGTH);
+            
+            myTag.SetInt16(offset + LEN_OFFSET, Convert.ToInt16(myString.Length));
+
+            //byte[] asciiEncodedString = new byte[MAX_CONTROLLOGIX_STRING_LENGTH];
+            byte[] asciiEncodedString = new byte[actualStringLength];
+            Encoding.ASCII.GetBytes(myString).CopyTo(asciiEncodedString, 0);
+
+            for (int ii = 0; ii < asciiEncodedString.Length; ii++)
+            {
+                myTag.SetUInt8(offset + DATA_OFFSET + ii, asciiEncodedString[ii]);
+            }
+
+            await myTag.WriteAsync(token);*/
 
             /*var someInt = 1951726900;
             myTag.SetInt32(8, someInt);
             await myTag.WriteAsync(token);*/
 
-            //Console.WriteLine(someData);
-            
-            var alist = new List<bool>(Randomizer.GenRandBoolList(5));
-            var result = await myPLC.Write("BaseBOOLArray[124]", TagType.Bool,alist.ToArray(), 128);
-            //var result = await myPLC.WriteIntArrayRange("BaseINTArray",alist.ToArray(), 128, 123,5);
+            var alist = new List<string>(Randomizer.GenRandStringList(20));
+            //var result = await myPLC.WriteStringArrayRange("BaseSTRINGArray", alist.ToArray(), 128, 123);
+            var result = await myPLC.Write("BaseStringArray[0]", TagType.String,alist.ToArray(), 128);
             Console.WriteLine("[{0}]", string.Join(", ", result));
+
         }
     }
 }

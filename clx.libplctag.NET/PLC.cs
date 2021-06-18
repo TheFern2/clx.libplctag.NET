@@ -38,8 +38,15 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    return await _ReadTag<BoolPlcMapper, bool>(tagName);
                 case TagType.Bit:
+                    // hack to read single array items for boolean arrays, broken downstream either at wrapper or libplctag core
+                    var indexMatchBit = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+                    if (indexMatchBit.Success)
+                    {
+                        var index = Int32.Parse(indexMatchBit.Value);
+                        return await _ReadBoolArraySingle(tagName.Split("[")[0], index).ConfigureAwait(false);
+                    }
+
                     return await _ReadTag<BoolPlcMapper, bool>(tagName);
                 case TagType.Dint:
                     return await _ReadTag<DintPlcMapper, int>(tagName);
@@ -64,6 +71,8 @@ namespace clx.libplctag.NET
         /// <param name="tagName">Tag name either a controller or program scoped tag</param>
         /// <param name="tagType">Tag type use TagType enum</param>
         /// <param name="arrayLength">Length of the array</param>
+        /// <param name="startIndex">Optional starting index</param>
+        /// <param name="count">Optional item count</param>
         /// <returns>Returns an array of strings, regardless of the tagType</returns>
         public async Task<Response<string[]>> Read(string tagName, TagType tagType, int arrayLength, int startIndex = 0,
             int count = 0)
@@ -71,31 +80,6 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    var resultsBoolArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] {arrayLength})
-                        .ConfigureAwait(false);
-                    if (resultsBoolArray.Status == "Success")
-                    {
-                        string[] arrString = Array.ConvertAll(resultsBoolArray.Value, Convert.ToString);
-                        // Sanity check to make sure we don't try to access items indices bigger than array
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
-                        }
-
-                        if (count > 0)
-                        {
-                            List<string> tagValueList = new List<string>(arrString);
-                            return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
-                                "Success");
-                        }
-
-                        return new Response<string[]>(tagName, arrString, "Success");
-                    }
-                    else
-                    {
-                        return new Response<string[]>(tagName, "Failure");
-                    }
-
                 case TagType.Bit:
                     var resultsBitArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
@@ -105,7 +89,7 @@ namespace clx.libplctag.NET
                         // Sanity check to make sure we don't try to access items indices bigger than array
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -119,7 +103,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsBitArray.Status);
                     }
 
                 case TagType.Dint:
@@ -131,7 +115,7 @@ namespace clx.libplctag.NET
                         // Sanity check to make sure we don't try to access items indices bigger than array
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -145,7 +129,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsDintArray.Status);
                     }
 
                 case TagType.Int:
@@ -156,7 +140,7 @@ namespace clx.libplctag.NET
                         string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -170,7 +154,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsIntArray.Status);
                     }
 
                 case TagType.Sint:
@@ -181,7 +165,7 @@ namespace clx.libplctag.NET
                         string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -195,7 +179,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsSintArray.Status);
                     }
 
                 case TagType.Lint:
@@ -206,7 +190,7 @@ namespace clx.libplctag.NET
                         string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -220,7 +204,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsLintArray.Status);
                     }
 
                 case TagType.Real:
@@ -231,7 +215,7 @@ namespace clx.libplctag.NET
                         string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -245,7 +229,7 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsRealArray.Status);
                     }
 
                 case TagType.String:
@@ -256,7 +240,7 @@ namespace clx.libplctag.NET
                         string[] arrString = Array.ConvertAll(resultsStringArray.Value, Convert.ToString);
                         if (startIndex + count > arrayLength)
                         {
-                            return new Response<string[]>(tagName, "Failure, Out of bounds");
+                            return new Response<string[]>(tagName, "MismatchLength");
                         }
 
                         if (count > 0)
@@ -270,11 +254,11 @@ namespace clx.libplctag.NET
                     }
                     else
                     {
-                        return new Response<string[]>(tagName, "Failure");
+                        return new Response<string[]>(tagName, resultsStringArray.Status);
                     }
 
                 default:
-                    return new Response<string[]>(tagName, "Failure");
+                    return new Response<string[]>(tagName, "Wrong Type");
             }
         }
 
@@ -287,7 +271,7 @@ namespace clx.libplctag.NET
             }
             else
             {
-                return new Response<string>(tagName, "Failure");
+                return new Response<string>(tagName, results.Status);
             }
         }
 
@@ -311,8 +295,16 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool) value).ConfigureAwait(false);
                 case TagType.Bit:
+                    // hack to write individual tags
+                    var indexMatchBit = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+                    if (indexMatchBit.Success)
+                    {
+                        var index = Int32.Parse(indexMatchBit.Value);
+                        return await _WriteBoolArraySingle(tagName.Split("[")[0], (bool) value, index)
+                            .ConfigureAwait(false);
+                    }
+
                     return await _WriteTag<BoolPlcMapper, bool>(tagName, (bool) value).ConfigureAwait(false);
                 case TagType.Dint:
                     return await _WriteTag<DintPlcMapper, int>(tagName, (int) value).ConfigureAwait(false);
@@ -327,7 +319,7 @@ namespace clx.libplctag.NET
                 case TagType.String:
                     return await _WriteTag<StringPlcMapper, string>(tagName, (string) value).ConfigureAwait(false);
                 default:
-                    return new Response<string>(tagName, "None", "Wrong Type");
+                    return new Response<string>(tagName, "Wrong Type");
             }
         }
 
@@ -338,22 +330,13 @@ namespace clx.libplctag.NET
             switch (tagType)
             {
                 case TagType.Bool:
-                    
-                    if (startIndexMatch.Success)
-                    {
-                        var startIndex = Int32.Parse(startIndexMatch.Value);
-                        return await WriteBoolArrayRange(tagName.Split("[")[0], (bool[]) value, arrayLength, startIndex);
-                    }
-
-                    return await WriteTag<BoolPlcMapper, bool[]>(tagName, (bool[]) value, new int[] {arrayLength})
-                        .ConfigureAwait(false);
-
                 case TagType.Bit:
-                    
+
                     if (startIndexMatch.Success)
                     {
                         var startIndex = Int32.Parse(startIndexMatch.Value);
-                        return await WriteBoolArrayRange(tagName.Split("[")[0], (bool[]) value, arrayLength, startIndex);
+                        return await WriteBoolArrayRange(tagName.Split("[")[0], (bool[]) value, arrayLength,
+                            startIndex);
                     }
 
                     return await WriteTag<BoolPlcMapper, bool[]>(tagName, (bool[]) value, new int[] {arrayLength})
@@ -368,59 +351,68 @@ namespace clx.libplctag.NET
                     }
 
                     return await WriteTag<DintPlcMapper, int[]>(tagName, (int[]) value, new int[] {arrayLength})
-                            .ConfigureAwait(false);
+                        .ConfigureAwait(false);
 
                 case TagType.Int:
-                    
+
                     if (startIndexMatch.Success)
                     {
                         var startIndex = Int32.Parse(startIndexMatch.Value);
-                        return await WriteIntArrayRange(tagName.Split("[")[0], (short[]) value, arrayLength, startIndex);
+                        return await WriteIntArrayRange(tagName.Split("[")[0], (short[]) value, arrayLength,
+                            startIndex);
                     }
-                    
+
                     return await WriteTag<IntPlcMapper, short[]>(tagName, (short[]) value, new int[] {arrayLength})
-                            .ConfigureAwait(false);
-                
+                        .ConfigureAwait(false);
+
                 case TagType.Sint:
 
-                    // ensure read is successful
                     if (startIndexMatch.Success)
                     {
-                        
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteSintArrayRange(tagName.Split("[")[0], (sbyte[]) value, arrayLength,
+                            startIndex);
                     }
-                    
+
                     return await WriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[]) value, new int[] {arrayLength})
-                            .ConfigureAwait(false);
+                        .ConfigureAwait(false);
 
                 case TagType.Lint:
-                    
+
                     if (startIndexMatch.Success)
                     {
-                        
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteLintArrayRange(tagName.Split("[")[0], (long[]) value, arrayLength,
+                            startIndex);
                     }
-                    
+
                     return await WriteTag<LintPlcMapper, long[]>(tagName, (long[]) value, new int[] {arrayLength})
-                            .ConfigureAwait(false);
+                        .ConfigureAwait(false);
 
                 case TagType.Real:
-                    
+
                     if (startIndexMatch.Success)
                     {
-                        
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteRealArrayRange(tagName.Split("[")[0], (float[]) value, arrayLength,
+                            startIndex);
                     }
 
-                   return await WriteTag<RealPlcMapper, float[]>(tagName, (float[]) value, new int[] {arrayLength})
-                            .ConfigureAwait(false);
+                    return await WriteTag<RealPlcMapper, float[]>(tagName, (float[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
 
                 case TagType.String:
 
                     if (startIndexMatch.Success)
                     {
-                        
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteStringArrayRange(tagName.Split("[")[0], (string[]) value, arrayLength,
+                            startIndex);
                     }
-                    
-                    return await WriteTag<StringPlcMapper, string[]>(tagName, value as string[], new int[] {arrayLength})
-                            .ConfigureAwait(false);
+
+                    return await WriteTag<StringPlcMapper, string[]>(tagName, value as string[],
+                            new int[] {arrayLength})
+                        .ConfigureAwait(false);
 
                 default:
                     return new Response<string>(tagName, "Wrong Type");
@@ -437,7 +429,7 @@ namespace clx.libplctag.NET
             }
             else
             {
-                return new Response<string>(tagName, "Failure");
+                return new Response<string>(tagName, results.Status);
             }
         }
 
@@ -464,8 +456,7 @@ namespace clx.libplctag.NET
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                return new Response<T>(tagName, "Failure");
+                return new Response<T>(tagName, e.Message);
             }
         }
 
@@ -485,7 +476,7 @@ namespace clx.libplctag.NET
             // Sanity Check, only support 3 dims in arrays for now
             if (arrayDim.Length > 3)
             {
-                return new Response<T>(tagName, "Failure, Out of bounds");
+                return new Response<T>(tagName, "InvalidArrayDim");
             }
 
             if (arrayDim.Length > 0 && arrayDim[0] > 0)
@@ -511,9 +502,9 @@ namespace clx.libplctag.NET
 
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return new Response<T>(tagName, "Failure");
+                return new Response<T>(tagName, e.Message);
             }
         }
 
@@ -539,9 +530,9 @@ namespace clx.libplctag.NET
                 tag.Dispose();
                 return new Response<T>(tagName, tagValue, "Success");
             }
-            catch (System.Exception)
+            catch (Exception e)
             {
-                return new Response<T>(tagName, "Write Failure");
+                return new Response<T>(tagName, e.Message);
             }
         }
 
@@ -583,8 +574,6 @@ namespace clx.libplctag.NET
                 await tag.InitializeAsync().ConfigureAwait(false);
                 tag.Value = value;
                 await tag.WriteAsync().ConfigureAwait(false);
-                /*await tag.ReadAsync().ConfigureAwait(false);
-                var tagValue = tag.Value;*/
                 tag.Dispose();
                 return new Response<string>(tagName, "Success");
             }
@@ -594,7 +583,7 @@ namespace clx.libplctag.NET
             }
         }
 
-        public async Task<Response<string>> WriteDintArrayRange(string tagName, int[] value, int arrayLength,
+        private async Task<Response<string>> WriteDintArrayRange(string tagName, int[] value, int arrayLength,
             int startIndex)
         {
             var tag = new Tag();
@@ -623,6 +612,7 @@ namespace clx.libplctag.NET
                 }
 
                 await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
 
                 return new Response<string>(tagName, "Success");
             }
@@ -632,7 +622,7 @@ namespace clx.libplctag.NET
             }
         }
 
-        public async Task<Response<string>> WriteIntArrayRange(string tagName, short[] value, int arrayLength,
+        private async Task<Response<string>> WriteIntArrayRange(string tagName, short[] value, int arrayLength,
             int startIndex)
         {
             var tag = new Tag();
@@ -661,6 +651,7 @@ namespace clx.libplctag.NET
                 }
 
                 await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
 
                 return new Response<string>(tagName, "Success");
             }
@@ -669,8 +660,125 @@ namespace clx.libplctag.NET
                 return new Response<string>(tagName, e.Message);
             }
         }
-        
-        public async Task<Response<string>> WriteBoolArrayRange(string tagName, bool[] value, int arrayLength,
+
+        private async Task<Response<string>> WriteSintArrayRange(string tagName, sbyte[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<string>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt8((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<string>> WriteLintArrayRange(string tagName, long[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<string>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt64((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<string>> WriteRealArrayRange(string tagName, float[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<string>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetFloat32((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<string>> WriteBoolArrayRange(string tagName, bool[] value, int arrayLength,
             int startIndex)
         {
             var tag = new Tag();
@@ -699,8 +807,119 @@ namespace clx.libplctag.NET
                 }
 
                 await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
 
                 return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+        
+        private async Task<Response<string>> WriteStringArrayRange(string tagName, string[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            const int MAX_CONTROLLOGIX_STRING_LENGTH = 88;
+            const int LEN_OFFSET = 0;
+            const int DATA_OFFSET = 4;
+
+            // sanity checks
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<string>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength; // should always be 88
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i].Length > MAX_CONTROLLOGIX_STRING_LENGTH)
+                    {
+                        return new Response<string>(tagName, $"String {value[i]} exceeds maximum length");
+                    }
+
+                    var actualStringLength = Math.Min(value[i].Length, MAX_CONTROLLOGIX_STRING_LENGTH);
+                    tag.SetInt16((startIndex + i) * offsetSize + LEN_OFFSET, Convert.ToInt16(value[i].Length));
+
+                    byte[] asciiEncodedString = new byte[actualStringLength];
+                    Encoding.ASCII.GetBytes(value[i]).CopyTo(asciiEncodedString, 0);
+                    
+                    for (int ii = 0; ii < asciiEncodedString.Length; ii++)
+                    {
+                        tag.SetUInt8((startIndex + i) * offsetSize + DATA_OFFSET + ii, asciiEncodedString[ii]);
+                       
+                    }
+                    //await tag.WriteAsync().ConfigureAwait(false);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<string>> _WriteBoolArraySingle(string tagName, bool value, int index)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = (index / 32) + 1;
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                tag.SetBit(index, value);
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<string>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<string>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<string>> _ReadBoolArraySingle(string tagName, int index)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = (index / 32) + 1;
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var tagValue = tag.GetBit(index);
+                tag.Dispose();
+
+                return new Response<string>(tagName, tagValue.ToString(), "Success");
             }
             catch (Exception e)
             {

@@ -77,7 +77,7 @@ namespace clx.libplctag.NET.Tests
             var updateValues = new List<string>(Randomizer.GenRandStringList(10));
 
             var result = await myPLC.Write("BaseSTRINGArray[119]", TagType.String, updateValues.ToArray(), 128);
-            Assert.AreEqual("Failure, Out of bounds", result.Status);
+            Assert.AreEqual("MismatchLength", result.Status);
 
         }
 
