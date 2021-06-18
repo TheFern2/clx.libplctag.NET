@@ -269,7 +269,7 @@ namespace clx.libplctag.NET.TestProgram
             };*/
             
             // Define the cancellation token.
-            CancellationTokenSource source = new CancellationTokenSource();
+            /*CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
 
@@ -288,7 +288,7 @@ namespace clx.libplctag.NET.TestProgram
             Console.WriteLine(myTag.IsInitialized);
             await myTag.ReadAsync(token);
             Console.WriteLine(myTag.GetSize());
-            Console.WriteLine(myTag.GetStatus());
+            Console.WriteLine(myTag.GetStatus());*/
             // one string index read
             /*var index = 6;
             var stringLength = myTag.GetInt32(88);
@@ -332,8 +332,9 @@ namespace clx.libplctag.NET.TestProgram
 
             var alist = new List<string>(Randomizer.GenRandStringList(20));
             //var result = await myPLC.WriteStringArrayRange("BaseSTRINGArray", alist.ToArray(), 128, 123);
-            var result = await myPLC.Write("BaseStringArray[0]", TagType.String,alist.ToArray(), 128);
-            Console.WriteLine("[{0}]", string.Join(", ", result));
+            //var result = await myPLC.Write("BaseStringArray[0]", TagType.String,alist.ToArray(), 128);
+            var result = await myPLC.Read("BaseBOOLArray[118]", TagType.Bool, 128, 10);
+            Console.WriteLine("[{0}]", string.Join(", ", result.Value));
 
         }
     }

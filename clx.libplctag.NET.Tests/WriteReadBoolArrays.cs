@@ -49,7 +49,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseBOOLArray[0]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 0, 10);
+            var result2 = await myPLC.Read("BaseBOOLArray[0]", TagType.Bool, 128, 10);
             bool[] arrBool = Array.ConvertAll(result2.Value, Convert.ToBoolean);
             Assert.IsTrue(arrBool.SequenceEqual(updateValues.ToArray()));
         }
@@ -65,7 +65,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseBOOLArray[10]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 10, 10);
+            var result2 = await myPLC.Read("BaseBOOLArray[10]", TagType.Bool, 128, 10);
             bool[] arrBool = Array.ConvertAll(result2.Value, Convert.ToBoolean);
             Assert.IsTrue(arrBool.SequenceEqual(updateValues.ToArray()));
         }
@@ -94,7 +94,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseBOOLArray[118]", TagType.Bool, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 118, 10);
+            var result2 = await myPLC.Read("BaseBOOLArray[118]", TagType.Bool, 128, 10);
             bool[] arrBool = Array.ConvertAll(result2.Value, Convert.ToBoolean);
             Assert.IsTrue(arrBool.SequenceEqual(updateValues.ToArray()));
         }

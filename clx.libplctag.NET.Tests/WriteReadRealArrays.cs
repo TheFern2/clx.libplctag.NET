@@ -49,7 +49,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseREALArray[0]", TagType.Real, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 0, 10);
+            var result2 = await myPLC.Read("BaseREALArray[0]", TagType.Real, 128, 10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }
@@ -65,7 +65,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseREALArray[10]", TagType.Real, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 10, 10);
+            var result2 = await myPLC.Read("BaseREALArray[10]", TagType.Real, 128, 10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }
@@ -94,7 +94,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseREALArray[118]", TagType.Real, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 118, 10);
+            var result2 = await myPLC.Read("BaseREALArray[118]", TagType.Real, 128, 10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }

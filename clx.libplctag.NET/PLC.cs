@@ -74,26 +74,29 @@ namespace clx.libplctag.NET
         /// <param name="startIndex">Optional starting index</param>
         /// <param name="count">Optional item count</param>
         /// <returns>Returns an array of strings, regardless of the tagType</returns>
-        public async Task<Response<string[]>> Read(string tagName, TagType tagType, int arrayLength, int startIndex = 0,
-            int count = 0)
+        public async Task<Response<string[]>> Read(string tagName, TagType tagType, int arrayLength, int count = 0)
         {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+            
             switch (tagType)
             {
                 case TagType.Bool:
                 case TagType.Bit:
-                    var resultsBitArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] {arrayLength})
+                    var resultsBitArray = await ReadTag<BoolPlcMapper, bool[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsBitArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsBitArray.Value, Convert.ToString);
-                        // Sanity check to make sure we don't try to access items indices bigger than array
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -107,19 +110,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Dint:
-                    var resultsDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] {arrayLength})
+                    var resultsDintArray = await ReadTag<DintPlcMapper, int[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsDintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsDintArray.Value, Convert.ToString);
-                        // Sanity check to make sure we don't try to access items indices bigger than array
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -133,18 +138,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Int:
-                    var resultsIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] {arrayLength})
+                    var resultsIntArray = await ReadTag<IntPlcMapper, short[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsIntArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsIntArray.Value, Convert.ToString);
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -158,18 +166,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Sint:
-                    var resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] {arrayLength})
+                    var resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsSintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsSintArray.Value, Convert.ToString);
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -183,18 +194,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Lint:
-                    var resultsLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] {arrayLength})
+                    var resultsLintArray = await ReadTag<LintPlcMapper, long[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsLintArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsLintArray.Value, Convert.ToString);
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -208,18 +222,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.Real:
-                    var resultsRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] {arrayLength})
+                    var resultsRealArray = await ReadTag<RealPlcMapper, float[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsRealArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
-                        if (startIndex + count > arrayLength)
+                        
+                        if (count > 0 && startIndexMatch.Success)
                         {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
-
-                        if (count > 0)
-                        {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
@@ -233,18 +250,21 @@ namespace clx.libplctag.NET
                     }
 
                 case TagType.String:
-                    var resultsStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] {arrayLength})
+                    var resultsStringArray = await ReadTag<StringPlcMapper, string[]>(startIndexMatch.Success ? tagName.Split("[")[0] : tagName, new int[] {arrayLength})
                         .ConfigureAwait(false);
                     if (resultsStringArray.Status == "Success")
                     {
                         string[] arrString = Array.ConvertAll(resultsStringArray.Value, Convert.ToString);
-                        if (startIndex + count > arrayLength)
-                        {
-                            return new Response<string[]>(tagName, "MismatchLength");
-                        }
 
-                        if (count > 0)
+                        if (count > 0 && startIndexMatch.Success)
                         {
+                            var startIndex = Int32.Parse(startIndexMatch.Value);
+                            
+                            if (startIndex + count > arrayLength)
+                            {
+                                return new Response<string[]>(tagName, "MismatchLength");
+                            }
+                            
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");

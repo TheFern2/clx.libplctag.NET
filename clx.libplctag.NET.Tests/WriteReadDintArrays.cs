@@ -49,7 +49,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseDINTArray[0]", TagType.Dint, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128, 0, 10);
+            var result2 = await myPLC.Read("BaseDINTArray[0]", TagType.Dint, 128,10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }
@@ -65,7 +65,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseDINTArray[10]", TagType.Dint, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128, 10, 10);
+            var result2 = await myPLC.Read("BaseDINTArray[10]", TagType.Dint, 128, 10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }
@@ -94,7 +94,7 @@ namespace clx.libplctag.NET.Tests
             var result = await myPLC.Write("BaseDINTArray[118]", TagType.Dint, updateValues.ToArray(), 128);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128, 118, 10);
+            var result2 = await myPLC.Read("BaseDINTArray[118]", TagType.Dint, 128, 10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }
