@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Authors>TheFern2</Authors>
+    <PackageProjectUrl>https://github.com/TheFern2/clx.libplctag.NET</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/TheFern2/clx.libplctag.NET/blob/main/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/TheFern2/clx.libplctag.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>libplctag, clx, plc, rockwell</PackageTags>
+    <Description>A high level API for reading/writing tags to Rockwell CLX PLCs. ControlLogix and CompactLogix.</Description>
+    <PackageId>clxx.libplctag.NET</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
