@@ -394,6 +394,7 @@ namespace clx.libplctag.NET
             return responseList;
         }
 
+        [Obsolete("This Method is Deprecated, Use Method with correct overload value", true)]
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
@@ -426,7 +427,95 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
+
+        public async Task<Response<string>> Write(string tagName, TagType tagType, bool value)
+        {
+            switch (tagType)
+            {
+                case TagType.Bool:
+                case TagType.Bit:
+                    // hack to write individual tags
+                    var indexMatchBit = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+                    if (indexMatchBit.Success)
+                    {
+                        var index = Int32.Parse(indexMatchBit.Value);
+                        return await _WriteBoolArraySingle(tagName.Split("[")[0], value, index)
+                            .ConfigureAwait(false);
+                    }
+
+                    return await _WriteTag<BoolPlcMapper, bool>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
         
+        public async Task<Response<string>> Write(string tagName, TagType tagType, int value)
+        {
+            switch (tagType)
+            {
+                case TagType.Dint:
+                    return await _WriteTag<DintPlcMapper, int>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, short value)
+        {
+            switch (tagType)
+            {
+                case TagType.Int:
+                    return await _WriteTag<IntPlcMapper, short>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, sbyte value)
+        {
+            switch (tagType)
+            {
+                case TagType.Sint:
+                    return await _WriteTag<SintPlcMapper, sbyte>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, long value)
+        {
+            switch (tagType)
+            {
+                case TagType.Lint:
+                    return await _WriteTag<LintPlcMapper, long>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, float value)
+        {
+            switch (tagType)
+            {
+                case TagType.Real:
+                    return await _WriteTag<RealPlcMapper, float>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, string value)
+        {
+            switch (tagType)
+            {
+                case TagType.String:
+                    return await _WriteTag<StringPlcMapper, string>(tagName, value).ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+
+        [Obsolete("This Method is Deprecated, Use Method with correct overload value", true)]
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value, int arrayLength)
         {
             var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
@@ -523,13 +612,169 @@ namespace clx.libplctag.NET
             }
         }
 
+        public async Task<Response<string>> Write(string tagName, TagType tagType, bool[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Bool:
+                case TagType.Bit:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteBoolArrayRange(tagName.Split("[")[0], (bool[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<BoolPlcMapper, bool[]>(tagName, (bool[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, int[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Dint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteDintArrayRange(tagName.Split("[")[0], (int[]) value, arrayLength, startIndex);
+                    }
+
+                    return await WriteTag<DintPlcMapper, int[]>(tagName, (int[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, short[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Int:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteIntArrayRange(tagName.Split("[")[0], (short[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<IntPlcMapper, short[]>(tagName, (short[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, sbyte[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Sint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteSintArrayRange(tagName.Split("[")[0], (sbyte[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, long[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Lint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteLintArrayRange(tagName.Split("[")[0], (long[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<LintPlcMapper, long[]>(tagName, (long[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, float[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Real:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteRealArrayRange(tagName.Split("[")[0], (float[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<RealPlcMapper, float[]>(tagName, (float[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+        
+        public async Task<Response<string>> Write(string tagName, TagType tagType, string[] value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.String:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await WriteStringArrayRange(tagName.Split("[")[0], (string[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await WriteTag<StringPlcMapper, string[]>(tagName, value as string[],
+                            new int[] {arrayLength})
+                        .ConfigureAwait(false);
+                default:
+                    return new Response<string>(tagName, "Wrong Type");
+            }
+        }
+
         private async Task<Response<string>> _WriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
         {
             var results = await WriteTag<M, T>(tagName, value).ConfigureAwait(false);
 
             if (results.Status == "Success")
             {
-                return new Response<string>(tagName, results.Value.ToString(), "Success");
+                return new Response<string>(tagName, "Success");
             }
             else
             {
