@@ -102,6 +102,18 @@ namespace clx.libplctag.NET
                                 "Success");
                         }
 
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
+                        }
+
                         return new Response<string[]>(tagName, arrString, "Success");
                     }
                     else
@@ -128,6 +140,18 @@ namespace clx.libplctag.NET
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
+                        }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
                         }
 
                         return new Response<string[]>(tagName, arrString, "Success");
@@ -157,6 +181,18 @@ namespace clx.libplctag.NET
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
                         }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
+                        }
 
                         return new Response<string[]>(tagName, arrString, "Success");
                     }
@@ -184,6 +220,18 @@ namespace clx.libplctag.NET
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
+                        }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
                         }
 
                         return new Response<string[]>(tagName, arrString, "Success");
@@ -213,6 +261,18 @@ namespace clx.libplctag.NET
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
                         }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
+                        }
 
                         return new Response<string[]>(tagName, arrString, "Success");
                     }
@@ -241,6 +301,18 @@ namespace clx.libplctag.NET
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
                         }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
+                        }
 
                         return new Response<string[]>(tagName, arrString, "Success");
                     }
@@ -268,6 +340,18 @@ namespace clx.libplctag.NET
                             List<string> tagValueList = new List<string>(arrString);
                             return new Response<string[]>(tagName, tagValueList.GetRange(startIndex, count).ToArray(),
                                 "Success");
+                        }
+                        
+                        if (count == 0 && startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "ZeroCountParamError");
+                        }
+                        
+                        if (count > 0 && !startIndexMatch.Success)
+                        {
+                            
+                            return new Response<string[]>(tagName, "StartIndexParamError");
                         }
 
                         return new Response<string[]>(tagName, arrString, "Success");
@@ -342,7 +426,7 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
-
+        
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value, int arrayLength)
         {
             var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
