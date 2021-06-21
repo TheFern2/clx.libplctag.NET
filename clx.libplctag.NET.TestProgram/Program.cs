@@ -330,12 +330,27 @@ namespace clx.libplctag.NET.TestProgram
             myTag.SetInt32(8, someInt);
             await myTag.WriteAsync(token);*/
 
-            var alist = new List<string>(Randomizer.GenRandStringList(20));
+            /*var alist = new List<string>(Randomizer.GenRandStringList(20));
             //var result = await myPLC.WriteStringArrayRange("BaseSTRINGArray", alist.ToArray(), 128, 123);
             //var result = await myPLC.Write("BaseStringArray[0]", TagType.String,alist.ToArray(), 128);
             var result = await myPLC.Read("BaseBOOLArray[118]", TagType.Bool, 128, 10);
-            Console.WriteLine("[{0}]", string.Join(", ", result.Value));
+            Console.WriteLine("[{0}]", string.Join(", ", result.Value));*/
 
+            /*var result = await myPLC.WriteTag<BoolPlcMapper, bool>("BaseBOOL", false);
+            Console.WriteLine("[{0}]", string.Join(", ", result));
+            */
+
+            var alist = new List<bool>(Randomizer.GenRandBoolList(128));
+            //var result = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128);
+            //var result = await myPLC.ReadTag<BoolPlcMapper, bool[]>("BaseBOOLArray", new int[] { 128 });
+            //var result = await myPLC.WriteTag<BoolPlcMapper, bool[]>("BaseBOOLArray", alist.ToArray(),new int[] { 128 });
+            var result = await myPLC.Read("BaseBOOLArray[0]", TagType.Bool, 128, 10);
+            Console.WriteLine("[{0}]", string.Join(", ", result));
+            Console.WriteLine(result.Value.Length);
+            
+            var result2 = await myPLC.Write("BaseBOOLArray[0]", TagType.Bool, alist.ToArray(), 128);
+            Console.WriteLine("[{0}]", string.Join(", ", result2));
+            
         }
     }
 }

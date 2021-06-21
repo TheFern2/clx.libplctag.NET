@@ -18,14 +18,24 @@ namespace clx.libplctag.NET
         public int Timeout { get; set; } = 5;
         // public Response<string> _response { get; set; }
         // public Response<string> _failure { get; set; }
+        
+        public PLC(string ipAddress)
+        {
+            _ipAddress = ipAddress;
+        }
 
         public PLC(string ipAddress, int slot)
         {
             _ipAddress = ipAddress;
             _path = "1," + slot.ToString();
-            // _response = new Response<string>();
-            // _failure = new Response<string>();
         }
+        
+        public PLC(string ipAddress, string path)
+        {
+            _ipAddress = ipAddress;
+            _path = path;
+        }
+
 
         /// <summary>
         /// Reads a tag from the PLC.
@@ -874,10 +884,8 @@ namespace clx.libplctag.NET
                 await tag.InitializeAsync().ConfigureAwait(false);
                 tag.Value = value;
                 await tag.WriteAsync().ConfigureAwait(false);
-                await tag.ReadAsync().ConfigureAwait(false);
-                var tagValue = tag.Value;
                 tag.Dispose();
-                return new Response<T>(tagName, tagValue, "Success");
+                return new Response<T>(tagName, "Success");
             }
             catch (Exception e)
             {
