@@ -4,6 +4,20 @@
 
 This is an async high level API for libplctag.NET wrapper, it supports CLX only (Controllogix, Compactlogix). As a long time pylogix user, I wanted an easier API, and hence why I am writing this library.
 
+## Install
+
+Install latest from cli:
+```
+dotnet add package clxx.libplctag.NET
+```
+
+Install specific version:
+```
+dotnet add package clxx.libplctag.NET --version 2.0.0
+```
+
+> You can also use nuget package manager
+
 ## API
 
 There are two main ways to read/write a tags or arrays, both of these methods return a Response object similar to [pylogix](https://github.com/dmroeder/pylogix).
