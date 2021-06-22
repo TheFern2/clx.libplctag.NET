@@ -485,8 +485,7 @@ namespace clx.libplctag.NET
                 return new Response<dynamic>(tagName, results.Status);
             }
         }
-
-        [Obsolete("This Method is Deprecated, Use Method with correct overload value", true)]
+        
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value)
         {
             switch (tagType)
@@ -519,6 +518,37 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
+        
+        public async Task<Response<dynamic>> DWrite(string tagName, TagType tagType, object value)
+        {
+            return tagType switch
+            {
+                TagType.Bool => await _DWriteTag<BoolPlcMapper, bool>(tagName, (bool)value).ConfigureAwait(false),
+                TagType.Bit => await _DWriteTag<BoolPlcMapper, bool>(tagName, (bool)value).ConfigureAwait(false),
+                TagType.Dint => await _DWriteTag<DintPlcMapper, int>(tagName, (int)value).ConfigureAwait(false),
+                TagType.Int => await _DWriteTag<IntPlcMapper, short>(tagName, (short)value).ConfigureAwait(false),
+                TagType.Sint => await _DWriteTag<SintPlcMapper, sbyte>(tagName, (sbyte)value).ConfigureAwait(false),
+                TagType.Lint => await _DWriteTag<LintPlcMapper, long>(tagName, (long)value).ConfigureAwait(false),
+                TagType.Real => await _DWriteTag<RealPlcMapper, float>(tagName, (float)value).ConfigureAwait(false),
+                TagType.String => await _DWriteTag<StringPlcMapper, string>(tagName, (string)value).ConfigureAwait(false),
+                _ => new Response<dynamic>(tagName, "None", "Wrong Type"),
+            };
+        }
+
+        private async Task<Response<dynamic>> _DWriteTag<M, T>(string tagName, T value) where M : IPlcMapper<T>, new()
+        {
+            var results = await WriteTag<M, T>(tagName, value).ConfigureAwait(false);
+
+            if (results.Status == "Success")
+            {
+                return new Response<dynamic>(tagName, "Success");
+            }
+            else
+            {
+                return new Response<dynamic>(tagName, results.Status);
+            }
+        }
+
 
         public async Task<Response<string>> Write(string tagName, TagType tagType, bool value)
         {
@@ -606,8 +636,7 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
-
-        [Obsolete("This Method is Deprecated, Use Method with correct overload value", true)]
+        
         public async Task<Response<string>> Write(string tagName, TagType tagType, object value, int arrayLength)
         {
             var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
@@ -703,6 +732,103 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
+        
+        public async Task<Response<dynamic>> DWrite(string tagName, TagType tagType, object value, int arrayLength)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+
+            switch (tagType)
+            {
+                case TagType.Bool:
+                case TagType.Bit:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteBoolArrayRange(tagName.Split("[")[0], (bool[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<BoolPlcMapper, bool[]>(tagName, (bool[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.Dint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteDintArrayRange(tagName.Split("[")[0], (int[]) value, arrayLength, startIndex);
+                    }
+
+                    return await DWriteTag<DintPlcMapper, int[]>(tagName, (int[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.Int:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteIntArrayRange(tagName.Split("[")[0], (short[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<IntPlcMapper, short[]>(tagName, (short[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.Sint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteSintArrayRange(tagName.Split("[")[0], (sbyte[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<SintPlcMapper, sbyte[]>(tagName, (sbyte[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.Lint:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteLintArrayRange(tagName.Split("[")[0], (long[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<LintPlcMapper, long[]>(tagName, (long[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.Real:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteRealArrayRange(tagName.Split("[")[0], (float[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<RealPlcMapper, float[]>(tagName, (float[]) value, new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                case TagType.String:
+
+                    if (startIndexMatch.Success)
+                    {
+                        var startIndex = Int32.Parse(startIndexMatch.Value);
+                        return await DWriteStringArrayRange(tagName.Split("[")[0], (string[]) value, arrayLength,
+                            startIndex);
+                    }
+
+                    return await DWriteTag<StringPlcMapper, string[]>(tagName, value as string[],
+                            new int[] {arrayLength})
+                        .ConfigureAwait(false);
+
+                default:
+                    return new Response<dynamic>(tagName, "Wrong Type");
+            }
+        }
+
 
         public async Task<Response<string>> Write(string tagName, TagType tagType, bool[] value, int arrayLength)
         {
@@ -1021,6 +1147,54 @@ namespace clx.libplctag.NET
                 return new Response<string>(tagName, e.Message);
             }
         }
+        
+        public async Task<Response<dynamic>> DWriteTag<M, T>(string tagName, T value, int[] arrayDim = null)
+            where M : IPlcMapper<T>, new()
+        {
+            var tag = new Tag<M, T>()
+            {
+                Name = tagName,
+                Gateway = _ipAddress,
+                Path = _path,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Timeout = TimeSpan.FromSeconds(Timeout)
+            };
+
+            // Sanity Check, only support 3 dims in arrays for now
+            if (arrayDim.Length > 3)
+            {
+                return new Response<dynamic>(tagName, "InvalidArrayDim");
+            }
+
+            if (arrayDim.Length > 0 && arrayDim[0] > 0)
+            {
+                tag.ArrayDimensions = new int[] {arrayDim[0]};
+                if (arrayDim.Length > 1 && arrayDim[1] > 0)
+                {
+                    tag.ArrayDimensions = new int[] {arrayDim[0], arrayDim[1]};
+
+                    if (arrayDim.Length > 2 && arrayDim[2] > 0)
+                    {
+                        tag.ArrayDimensions = new int[] {arrayDim[0], arrayDim[1], arrayDim[2]};
+                    }
+                }
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                tag.Value = value;
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
 
         private async Task<Response<string>> WriteDintArrayRange(string tagName, int[] value, int arrayLength,
             int startIndex)
@@ -1363,6 +1537,299 @@ namespace clx.libplctag.NET
             catch (Exception e)
             {
                 return new Response<string>(tagName, e.Message);
+            }
+        }
+        
+        private async Task<Response<dynamic>> DWriteDintArrayRange(string tagName, int[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt32((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<dynamic>> DWriteIntArrayRange(string tagName, short[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt16((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<dynamic>> DWriteSintArrayRange(string tagName, sbyte[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt8((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<dynamic>> DWriteLintArrayRange(string tagName, long[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetInt64((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<dynamic>> DWriteRealArrayRange(string tagName, float[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetFloat32((startIndex + i) * offsetSize, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+
+        private async Task<Response<dynamic>> DWriteBoolArrayRange(string tagName, bool[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength / 32;
+
+            // sanity check
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                //var offsetSize = tag.GetSize() / arrayLength;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    tag.SetBit(startIndex + i, value[i]);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
+            }
+        }
+        
+        private async Task<Response<dynamic>> DWriteStringArrayRange(string tagName, string[] value, int arrayLength,
+            int startIndex)
+        {
+            var tag = new Tag();
+            tag.Name = tagName;
+            tag.Gateway = _ipAddress;
+            tag.Path = _path;
+            tag.PlcType = PlcType.ControlLogix;
+            tag.Protocol = Protocol.ab_eip;
+            tag.Timeout = TimeSpan.FromSeconds(Timeout);
+            tag.ElementCount = arrayLength;
+
+            const int MAX_CONTROLLOGIX_STRING_LENGTH = 88;
+            const int LEN_OFFSET = 0;
+            const int DATA_OFFSET = 4;
+
+            // sanity checks
+            if (startIndex + value.Length > arrayLength)
+            {
+                return new Response<dynamic>(tagName, "MismatchLength");
+            }
+
+            try
+            {
+                await tag.InitializeAsync().ConfigureAwait(false);
+                var offsetSize = tag.GetSize() / arrayLength; // should always be 88
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i].Length > MAX_CONTROLLOGIX_STRING_LENGTH)
+                    {
+                        return new Response<dynamic>(tagName, $"String {value[i]} exceeds maximum length");
+                    }
+
+                    var actualStringLength = Math.Min(value[i].Length, MAX_CONTROLLOGIX_STRING_LENGTH);
+                    tag.SetInt16((startIndex + i) * offsetSize + LEN_OFFSET, Convert.ToInt16(value[i].Length));
+
+                    byte[] asciiEncodedString = new byte[actualStringLength];
+                    Encoding.ASCII.GetBytes(value[i]).CopyTo(asciiEncodedString, 0);
+                    
+                    for (int ii = 0; ii < asciiEncodedString.Length; ii++)
+                    {
+                        tag.SetUInt8((startIndex + i) * offsetSize + DATA_OFFSET + ii, asciiEncodedString[ii]);
+                       
+                    }
+                    //await tag.WriteAsync().ConfigureAwait(false);
+                }
+
+                await tag.WriteAsync().ConfigureAwait(false);
+                tag.Dispose();
+
+                return new Response<dynamic>(tagName, "Success");
+            }
+            catch (Exception e)
+            {
+                return new Response<dynamic>(tagName, e.Message);
             }
         }
     }
