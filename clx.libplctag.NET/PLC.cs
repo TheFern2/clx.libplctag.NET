@@ -74,6 +74,23 @@ namespace clx.libplctag.NET
                     return new Response<string>(tagName, "Wrong Type");
             }
         }
+        
+        public async Task<Response<dynamic>> DRead(string tagName, TagType tagType)
+        {
+            return tagType switch
+            {
+                TagType.Bool => await _DReadTag<BoolPlcMapper, bool>(tagName).ConfigureAwait(false),
+                TagType.Bit => await _DReadTag<BoolPlcMapper, bool>(tagName).ConfigureAwait(false),
+                TagType.Dint => await _DReadTag<DintPlcMapper, int>(tagName).ConfigureAwait(false),
+                TagType.Int => await _DReadTag<IntPlcMapper, short>(tagName).ConfigureAwait(false),
+                TagType.Sint => await _DReadTag<SintPlcMapper, sbyte>(tagName).ConfigureAwait(false),
+                TagType.Lint => await _DReadTag<LintPlcMapper, long>(tagName).ConfigureAwait(false),
+                TagType.Real => await _DReadTag<RealPlcMapper, float>(tagName).ConfigureAwait(false),
+                TagType.String => await _DReadTag<StringPlcMapper, string>(tagName).ConfigureAwait(false),
+                _ => new Response<dynamic>(tagName, "Wrong Type"),
+            };
+        }
+
 
         /// <summary>
         /// Reads an array from the PLC.
@@ -375,6 +392,73 @@ namespace clx.libplctag.NET
                     return new Response<string[]>(tagName, "Wrong Type");
             }
         }
+        
+        public async Task<Response<dynamic>> DRead(string tagName, TagType tagType, int arrayLength, int count = 0)
+        {
+            var startIndexMatch = Regex.Match(tagName, @"(?<=\[).+?(?=\])");
+            var startIndex = startIndexMatch.Success ? Int32.Parse(startIndexMatch.Value) : 0;
+
+            switch (tagType)
+            {
+                case TagType.Bool:
+                    dynamic resultsBoolArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsBoolArray);
+
+                case TagType.Bit:
+                    dynamic resultsBitArray = await ReadTag<BoolPlcMapper, bool[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsBitArray);
+
+                case TagType.Dint:
+                    dynamic resultsDintArray = await ReadTag<DintPlcMapper, int[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsDintArray);
+
+                case TagType.Int:
+                    dynamic resultsIntArray = await ReadTag<IntPlcMapper, short[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsIntArray);
+
+                case TagType.Sint:
+                    dynamic resultsSintArray = await ReadTag<SintPlcMapper, sbyte[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsSintArray);
+
+                case TagType.Lint:
+                    dynamic resultsLintArray = await ReadTag<LintPlcMapper, long[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsLintArray);
+
+                case TagType.Real:
+                    dynamic resultsRealArray = await ReadTag<RealPlcMapper, float[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsRealArray);
+                case TagType.String:
+                    dynamic resultsStringArray = await ReadTag<StringPlcMapper, string[]>(tagName, new int[] { arrayLength }).ConfigureAwait(false);
+                    return SendResponse(tagName, arrayLength, startIndex, count, resultsStringArray);
+
+                default:
+                    return new Response<dynamic>(tagName, "Failure");
+            }
+        }
+        
+        private static Response<dynamic> SendResponse(string tagName, int arrayLength, int startIndex, int count, dynamic resultsRealArray)
+        {
+            if (resultsRealArray.Status == "Success")
+            {
+                //string[] arrString = Array.ConvertAll(resultsRealArray.Value, Convert.ToString);
+                if (startIndex + count > arrayLength)
+                {
+                    return new Response<dynamic>(tagName, "Failure, Out of bounds");
+                }
+
+                if (count > 0)
+                {
+                    //List<string> tagValueList = new List<string>(arrString);
+                    return new Response<dynamic>(tagName, resultsRealArray.Value.Skip(startIndex + 1).Take(count).ToArray(), "Success");
+                    //return new Response<dynamic>(tagName, resultsRealArray.Value.GetRange(startIndex, count).ToArray(), "Success");
+                }
+                return new Response<dynamic>(tagName, resultsRealArray.Value, "Success");
+            }
+            else
+            {
+                return new Response<dynamic>(tagName, "Failure");
+            }
+        }
 
         private async Task<Response<string>> _ReadTag<M, T>(string tagName) where M : IPlcMapper<T>, new()
         {
@@ -388,20 +472,18 @@ namespace clx.libplctag.NET
                 return new Response<string>(tagName, results.Status);
             }
         }
-
-        // Experimenting with reading a tag list
-        // Return a list of Response string objects
-        public async Task<List<Response<string>>> ReadTags(Dictionary<string, TagType> taglist)
+        
+        private async Task<Response<dynamic>> _DReadTag<M, T>(string tagName) where M : IPlcMapper<T>, new()
         {
-            List<Response<string>> responseList = new List<Response<string>>();
-            List<string> dicKeys = new List<string>(taglist.Keys);
-
-            foreach (var tagName in dicKeys)
+            var results = await ReadTag<M, T>(tagName).ConfigureAwait(false);
+            if (results.Status == "Success")
             {
-                responseList.Add(await Read(tagName, taglist[tagName]).ConfigureAwait(false));
+                return new Response<dynamic>(tagName, results.Value, "Success");
             }
-
-            return responseList;
+            else
+            {
+                return new Response<dynamic>(tagName, results.Status);
+            }
         }
 
         [Obsolete("This Method is Deprecated, Use Method with correct overload value", true)]
