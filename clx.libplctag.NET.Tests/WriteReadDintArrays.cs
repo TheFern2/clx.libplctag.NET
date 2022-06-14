@@ -46,10 +46,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseDINTArray", TagType.Dint, alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
 
-            var result = await myPLC.Write("BaseDINTArray[0]", TagType.Dint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseDINTArray", TagType.Dint, updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray[0]", TagType.Dint, 128,10);
+            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128,0, 10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }
@@ -62,10 +62,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseDINTArray", TagType.Dint, alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
 
-            var result = await myPLC.Write("BaseDINTArray[10]", TagType.Dint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseDINTArray", TagType.Dint, updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray[10]", TagType.Dint, 128, 10);
+            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128, 10, 10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }
@@ -91,10 +91,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseDINTArray", TagType.Dint, alist.ToArray(), 128);
             var updateValues = new List<int>(Randomizer.GenRandIntList(10));
 
-            var result = await myPLC.Write("BaseDINTArray[118]", TagType.Dint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseDINTArray", TagType.Dint, updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseDINTArray[118]", TagType.Dint, 128, 10);
+            var result2 = await myPLC.Read("BaseDINTArray", TagType.Dint, 128, 118, 10);
             int[] arrInt = Array.ConvertAll(result2.Value, Convert.ToInt32);
             Assert.IsTrue(arrInt.SequenceEqual(updateValues.ToArray()));
         }

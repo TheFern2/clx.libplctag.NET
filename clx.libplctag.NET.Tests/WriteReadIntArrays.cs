@@ -46,10 +46,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseINTArray", TagType.Int, alist.ToArray(), 128);
             var updateValues = new List<short>(Randomizer.GenRandShortList(10));
 
-            var result = await myPLC.Write("BaseINTArray[0]", TagType.Int, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseINTArray", TagType.Int, updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseINTArray[0]", TagType.Int, 128, 10);
+            var result2 = await myPLC.Read("BaseINTArray", TagType.Int, 128, 0, 10);
             short[] arrShort = Array.ConvertAll(result2.Value, Convert.ToInt16);
             Assert.IsTrue(arrShort.SequenceEqual(updateValues.ToArray()));
         }
@@ -62,10 +62,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseINTArray", TagType.Int, alist.ToArray(), 128);
             var updateValues = new List<short>(Randomizer.GenRandShortList(10));
 
-            var result = await myPLC.Write("BaseINTArray[10]", TagType.Int, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseINTArray", TagType.Int, updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseINTArray[10]", TagType.Int, 128, 10);
+            var result2 = await myPLC.Read("BaseINTArray", TagType.Int, 128, 10,10);
             short[] arrShort = Array.ConvertAll(result2.Value, Convert.ToInt16);
             Assert.IsTrue(arrShort.SequenceEqual(updateValues.ToArray()));
         }
@@ -91,10 +91,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseINTArray", TagType.Int, alist.ToArray(), 128);
             var updateValues = new List<short>(Randomizer.GenRandShortList(10));
 
-            var result = await myPLC.Write("BaseINTArray[118]", TagType.Int, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseINTArray", TagType.Int, updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseINTArray[118]", TagType.Int, 128, 10);
+            var result2 = await myPLC.Read("BaseINTArray", TagType.Int, 128, 118,10);
             short[] arrShort = Array.ConvertAll(result2.Value, Convert.ToInt16);
             Assert.IsTrue(arrShort.SequenceEqual(updateValues.ToArray()));
         }

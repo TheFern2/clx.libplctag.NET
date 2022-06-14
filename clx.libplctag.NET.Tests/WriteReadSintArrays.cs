@@ -46,10 +46,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSINTArray", TagType.Sint, alist.ToArray(), 128);
             var updateValues = new List<sbyte>(Randomizer.GenRandSbyteList(10));
 
-            var result = await myPLC.Write("BaseSINTArray[0]", TagType.Sint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseSINTArray", TagType.Sint, updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseSINTArray[0]", TagType.Sint, 128, 10);
+            var result2 = await myPLC.Read("BaseSINTArray", TagType.Sint, 128, 0, 10);
             sbyte[] arrSbyte = Array.ConvertAll(result2.Value, Convert.ToSByte);
             Assert.IsTrue(arrSbyte.SequenceEqual(updateValues.ToArray()));
         }
@@ -62,10 +62,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSINTArray", TagType.Sint, alist.ToArray(), 128);
             var updateValues = new List<sbyte>(Randomizer.GenRandSbyteList(10));
 
-            var result = await myPLC.Write("BaseSINTArray[10]", TagType.Sint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseSINTArray", TagType.Sint, updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseSINTArray[10]", TagType.Sint, 128, 10);
+            var result2 = await myPLC.Read("BaseSINTArray", TagType.Sint, 128, 10, 10);
             sbyte[] arrSbyte = Array.ConvertAll(result2.Value, Convert.ToSByte);
             Assert.IsTrue(arrSbyte.SequenceEqual(updateValues.ToArray()));
         }
@@ -91,10 +91,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseSINTArray", TagType.Sint, alist.ToArray(), 128);
             var updateValues = new List<sbyte>(Randomizer.GenRandSbyteList(10));
 
-            var result = await myPLC.Write("BaseSINTArray[118]", TagType.Sint, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseSINTArray", TagType.Sint, updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseSINTArray[118]", TagType.Sint, 128, 10);
+            var result2 = await myPLC.Read("BaseSINTArray", TagType.Sint, 128, 118, 10);
             sbyte[] arrSbyte = Array.ConvertAll(result2.Value, Convert.ToSByte);
             Assert.IsTrue(arrSbyte.SequenceEqual(updateValues.ToArray()));
         }

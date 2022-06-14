@@ -6,7 +6,7 @@ namespace clx.libplctag.NET.Tests
 {
     public static class Configuration
     {
-        public static string ipAddress = "192.168.1.196";
-        public static int slot = 2;
+        public static string ipAddress = "192.168.1.14";
+        public static int slot = 1;
     }
 }

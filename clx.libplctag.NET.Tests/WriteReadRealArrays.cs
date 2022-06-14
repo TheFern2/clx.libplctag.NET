@@ -46,10 +46,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseREALArray", TagType.Real, alist.ToArray(), 128);
             var updateValues = new List<float>(Randomizer.GenRandFloatList(10));
 
-            var result = await myPLC.Write("BaseREALArray[0]", TagType.Real, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseREALArray", TagType.Real, updateValues.ToArray(), 128, 0, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray[0]", TagType.Real, 128, 10);
+            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 0,10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }
@@ -62,10 +62,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseREALArray", TagType.Real, alist.ToArray(), 128);
             var updateValues = new List<float>(Randomizer.GenRandFloatList(10));
 
-            var result = await myPLC.Write("BaseREALArray[10]", TagType.Real, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseREALArray", TagType.Real, updateValues.ToArray(), 128, 10, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray[10]", TagType.Real, 128, 10);
+            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 10, 10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }
@@ -91,10 +91,10 @@ namespace clx.libplctag.NET.Tests
             await myPLC.Write("BaseREALArray", TagType.Real, alist.ToArray(), 128);
             var updateValues = new List<float>(Randomizer.GenRandFloatList(10));
 
-            var result = await myPLC.Write("BaseREALArray[118]", TagType.Real, updateValues.ToArray(), 128);
+            var result = await myPLC.Write("BaseREALArray", TagType.Real, updateValues.ToArray(), 128, 118, 10);
             Assert.AreEqual("Success", result.Status);
 
-            var result2 = await myPLC.Read("BaseREALArray[118]", TagType.Real, 128, 10);
+            var result2 = await myPLC.Read("BaseREALArray", TagType.Real, 128, 118, 10);
             float[] arrFloat = Array.ConvertAll(result2.Value, Convert.ToSingle);
             Assert.IsTrue(arrFloat.SequenceEqual(updateValues.ToArray()));
         }

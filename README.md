@@ -150,10 +150,10 @@ Response: BaseBOOLArray  Success
 
 As of now the Read ranges is nothing but a syntactic sugar function. A full array read happens, then I extract whatever range was requested. The Response.Value is a string array.
 
-Read range, start index [0], getting 10 items:
+Read range, start index 0, getting 10 items:
 
 ```csharp
-var result = await myPLC.Read("BaseBOOLArray[0]", TagType.Bool, 128, 10);
+var result = await myPLC.Read("BaseBOOLArray", TagType.Bool, 128, 0, 10);
 Console.WriteLine(result);
 
 Response: BaseBOOLArray[0] System.String[] Success
@@ -165,11 +165,11 @@ Console.WriteLine(result.Value.Length);
 
 Writing ranges to arrays is using an optimized function internally by only writing the bytes necessary for the range needed.
 
-Write range, start index [0], writing 10 items:
+Write range, start index 0, writing 10 items:
 
 ```csharp
 bool[] boolArr = new bool[10];
-var result = await myPLC.Write("BaseBOOLArray[0]", TagType.Bool, boolArr, 128);
+var result = await myPLC.Write("BaseBOOLArray", TagType.Bool, boolArr, 128, 0, 10);
 Console.WriteLine(result);
 
 Response: BaseBOOLArray  Success
