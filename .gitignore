@@ -24,3 +24,4 @@ msbuild.wrn
 .idea/
 
 *.DotSettings.user
+clx.libplctag.NET.Tests/config.json

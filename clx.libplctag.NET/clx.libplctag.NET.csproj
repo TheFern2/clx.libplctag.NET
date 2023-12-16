@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageVersion>2.0.1</PackageVersion>
+    <PackageVersion>2.0.2</PackageVersion>
     <Authors>TheFern2</Authors>
     <PackageProjectUrl>https://github.com/TheFern2/clx.libplctag.NET</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/TheFern2/clx.libplctag.NET/blob/main/LICENSE.txt</PackageLicenseUrl>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="libplctag" Version="1.0.5" />
+    <PackageReference Include="libplctag" Version="1.2.0" />
   </ItemGroup>
 
 </Project>
